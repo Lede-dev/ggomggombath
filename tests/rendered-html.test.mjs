@@ -4,6 +4,7 @@ import test from "node:test";
 
 const outputRoot = new URL("../dist/client/", import.meta.url);
 const assetsConfigUrl = new URL("../wrangler.assets.jsonc", import.meta.url);
+const globalStylesUrl = new URL("../app/globals.css", import.meta.url);
 
 test("exports the homepage as a static asset", async () => {
   const html = await readFile(new URL("index.html", outputRoot), "utf8");
@@ -35,4 +36,12 @@ test("deploys only static assets without a Worker entry point", async () => {
   assert.equal(config.assets.directory, "./dist/client");
   assert.equal("main" in config, false);
   assert.equal("binding" in config.assets, false);
+});
+
+test("anchor navigation does not hold mouse-wheel scrolling", async () => {
+  const styles = await readFile(globalStylesUrl, "utf8");
+
+  assert.doesNotMatch(styles, /scroll-behavior:\s*smooth/);
+  assert.match(styles, /html\s*{\s*scroll-padding-top:\s*84px;\s*}/);
+  assert.match(styles, /@media \(max-width:\s*980px\)[\s\S]*html\s*{\s*scroll-padding-top:\s*76px;\s*}/);
 });
