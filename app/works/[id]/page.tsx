@@ -90,20 +90,20 @@ export default async function WorkDetailPage({ params }: WorkPageProps) {
         <Breadcrumbs items={[{ label: "시공 사례", href: "/works" }, { label: `${post.area} ${post.service}` }]} />
         <article className="work-detail">
           <header className="work-detail-header">
-            <p>SOURCE-BASED CASE · <time dateTime={post.dateIso}>{post.date}</time></p>
+            <p>실제 시공 사례 · <time dateTime={post.dateIso}>{post.date}</time></p>
             <h1>{post.displayTitle}</h1>
             <p>{post.summary}</p>
-            <aside className="source-provenance" aria-label="콘텐츠 출처와 가공 방식">
-              <span>사람이 작성한 원문 기준</span>
-              <strong>네이버 블로그 현장 기록을 홈페이지용으로 구조화했습니다.</strong>
-              <p>자동으로 새로운 사실을 만들거나 작업 결과를 추정하지 않습니다. 정확한 표현과 전체 시공 과정은 원문을 우선해 확인해 주세요.</p>
-              <a href={post.link} target="_blank" rel="noreferrer">네이버 원문 확인하기 ↗</a>
+            <aside className="source-provenance" aria-label="실제 시공 기록 안내">
+              <span>꼼꼼욕실의 실제 현장 기록</span>
+              <strong>직접 작업하고 사진과 함께 남긴 시공 사례입니다.</strong>
+              <p>사진과 핵심 내용을 먼저 살펴보며 우리 집과 비슷한 조건인지 비교해 보세요. 더 자세한 작업 과정은 네이버 블로그에서 이어서 확인할 수 있습니다.</p>
+              <a href={post.link} target="_blank" rel="noreferrer">전체 작업 과정 보기 ↗</a>
             </aside>
             <div className="work-facts">
               <div><span>지역</span><strong>{post.area}</strong></div>
               <div><span>시공</span><strong>{post.service}</strong></div>
               <div><span>제품</span><strong>{post.product || "원문에서 확인"}</strong></div>
-              <div><span>원문 확인 항목</span><strong>{post.issues.length ? post.issues.join(" · ") : "현장 상태 및 작업 과정"}</strong></div>
+              <div><span>교체 전 불편</span><strong>{post.issues.length ? post.issues.join(" · ") : "상세 기록에서 확인"}</strong></div>
             </div>
           </header>
           {post.images.length > 0 ? (
@@ -116,9 +116,9 @@ export default async function WorkDetailPage({ params }: WorkPageProps) {
             </div>
           ) : null}
           <section className="work-article-body structured-case-body" aria-labelledby="source-highlights-title">
-            <p className="section-label">VERIFIED FROM SOURCE</p>
-            <h2 id="source-highlights-title">원문에서 확인한 핵심 내용</h2>
-            <p className="structured-case-intro">아래 문장은 사람이 작성한 네이버 시공 기록에서 핵심 내용을 선별한 것입니다. 문맥과 전체 작업 과정은 원문 링크에서 이어서 확인할 수 있습니다.</p>
+            <p className="section-label">WORK NOTES</p>
+            <h2 id="source-highlights-title">이 현장에서 눈여겨볼 점</h2>
+            <p className="structured-case-intro">교체를 고민하는 분들이 가장 궁금해할 만한 내용을 실제 현장 기록에서 골라 소개합니다.</p>
             <ol className="source-highlights">
               {post.highlights.map((highlight, index) => (
                 <li key={`${index}-${highlight}`}>
@@ -128,8 +128,8 @@ export default async function WorkDetailPage({ params }: WorkPageProps) {
               ))}
             </ol>
             <aside className="case-reading-note">
-              <span>사례를 볼 때 참고하세요</span>
-              <p>같은 증상이라도 배관 위치, 설치 공간과 기존 제품 규격에 따라 적용 제품과 작업 범위가 달라질 수 있습니다. 이 사례는 동일 조건을 보장하는 견적서가 아니라 상담 전 비교 자료입니다.</p>
+              <span>우리 집과 비교할 때 참고하세요</span>
+              <p>같은 불편이라도 배관 위치, 설치 공간과 기존 제품 규격에 따라 알맞은 제품과 작업 범위가 달라질 수 있습니다. 정확한 내용은 현장 사진을 확인한 뒤 안내해 드립니다.</p>
             </aside>
           </section>
           {post.images.length > 3 ? (
@@ -142,14 +142,13 @@ export default async function WorkDetailPage({ params }: WorkPageProps) {
             </div>
           ) : null}
           <footer className="work-source">
-            <span>ORIGINAL SOURCE</span>
-            <h2>사람이 직접 작성한 네이버 원문</h2>
+            <span>MORE PHOTOS &amp; DETAILS</span>
+            <h2>더 많은 사진과 작업 과정</h2>
             <dl>
-              <div><dt>원문 제목</dt><dd>{post.title}</dd></div>
-              <div><dt>원문 작성일</dt><dd><time dateTime={post.dateIso}>{post.date}</time></dd></div>
-              <div><dt>홈페이지 정리일</dt><dd><time dateTime={post.processedAt}>{post.processedAt}</time></dd></div>
+              <div><dt>네이버 현장 기록</dt><dd>{post.title}</dd></div>
+              <div><dt>시공 사례 등록일</dt><dd><time dateTime={post.dateIso}>{post.date}</time></dd></div>
             </dl>
-            <a href={post.link} target="_blank" rel="noreferrer">전체 시공 과정과 사진을 원문에서 보기 ↗</a>
+            <a href={post.link} target="_blank" rel="noreferrer">네이버 블로그에서 전체 시공 과정 보기 ↗</a>
           </footer>
         </article>
         <section className="content-section related-works"><p className="section-label">RELATED WORKS</p><h2>조건이 비슷한 시공 사례</h2><WorkCards posts={relatedPosts} /></section>

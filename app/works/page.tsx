@@ -31,11 +31,11 @@ export default function WorksPage() {
       <JsonLd data={itemListSchema} />
       <main>
         <Breadcrumbs items={[{ label: "시공 사례" }]} />
-        <PageHero eyebrow="REAL WORKS" title={<>현장에서 확인한<br /><em>실제 시공 기록</em></>} description={`사람이 직접 작성한 꼼꼼욕실 네이버 블로그의 ${stats.completedWorks.toLocaleString("ko-KR")}건을 지역·제품·증상 중심으로 구조화했습니다. 각 사례의 정확한 표현과 전체 과정은 연결된 원문에서 확인할 수 있습니다.`}>
-          <div className="works-summary"><strong>{stats.completedWorks.toLocaleString("ko-KR")}<small>건</small></strong><span>네이버 블로그 시공후기 카테고리 기준</span></div>
+        <PageHero eyebrow="REAL WORKS" title={<>우리 집과 비슷한<br /><em>시공 사례를 찾아보세요</em></>} description={`꼼꼼욕실이 직접 작업한 ${stats.completedWorks.toLocaleString("ko-KR")}건의 욕실 현장을 모았습니다. 지역과 제품, 교체 전 불편 사항을 비교하며 우리 집에 필요한 시공을 미리 살펴보세요.`}>
+          <div className="works-summary"><strong>{stats.completedWorks.toLocaleString("ko-KR")}<small>건</small></strong><span>지금까지 소개한 실제 시공 현장</span></div>
         </PageHero>
         <section className="content-section works-list-section" aria-label="시공 사례 목록"><WorkPagination posts={cardPosts} /></section>
-        <section className="content-section source-note"><div><p className="section-label">SOURCE &amp; METHOD</p><h2>사람이 쓴 기록을<br />기준으로 정리합니다</h2></div><div className="prose-stack"><p>홈페이지는 네이버 원문 전체를 복제하지 않습니다. 원문에서 확인되는 지역, 제품, 증상과 대표 사진만 구조화하며 새로운 사실을 임의로 추가하지 않습니다. 해석이 필요한 내용은 사람이 직접 작성한 네이버 원문을 우선합니다.</p><a className="underlined-link" href={stats.sourceUrl} target="_blank" rel="noreferrer">네이버 시공후기 전체보기 ↗</a></div></section>
+        <section className="content-section source-note"><div><p className="section-label">TRUSTED RECORDS</p><h2>사진과 기록으로<br />미리 확인해 보세요</h2></div><div className="prose-stack"><p>모든 사례는 꼼꼼욕실이 직접 작업하고 네이버 블로그에 남긴 현장 기록을 바탕으로 소개합니다. 궁금한 현장의 핵심 내용을 먼저 살펴보고, 더 많은 사진과 전체 작업 과정은 블로그에서 이어서 확인할 수 있습니다.</p><a className="underlined-link" href={stats.sourceUrl} target="_blank" rel="noreferrer">네이버 시공후기 전체보기 ↗</a></div></section>
         <ContactCta title="비슷한 현장인지 사진으로 확인하세요" />
       </main>
     </SiteShell>

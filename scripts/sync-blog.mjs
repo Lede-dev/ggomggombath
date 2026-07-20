@@ -20,7 +20,7 @@ const LIST_PAGE_SIZE = 30;
 const DETAIL_CONCURRENCY = 2;
 const REQUEST_INTERVAL_MS = 650;
 const RSS_ITEMS_LIMIT = 20;
-const EDITORIAL_VERSION = "source-structure-v1";
+const EDITORIAL_VERSION = "source-structure-v5";
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const postsPath = resolve(rootDir, "data/blog-posts.json");
 const statsPath = resolve(rootDir, "data/blog-stats.json");
@@ -93,8 +93,11 @@ function extractIssues(title, excerpt) {
 
 function extractService(title, content = []) {
   const detect = (source) => {
-    if (/변기|양변기/.test(source)) return "양변기 교체";
-    if (/세면대|세면기/.test(source)) return "세면기 교체";
+    const hasToilet = /변기|양변기/.test(source);
+    const hasBasin = /세면대|세면기/.test(source);
+    if (hasToilet && hasBasin) return "양변기·세면기 교체";
+    if (hasToilet) return "양변기 교체";
+    if (hasBasin) return "세면기 교체";
     if (/수전|샤워기|샤워 수전/.test(source)) return "수전·샤워 교체";
     if (/욕실장|거울장|슬라이드장/.test(source)) return "욕실장·거울 교체";
     return "";
@@ -107,7 +110,9 @@ function extractService(title, content = []) {
 }
 
 function extractArea(title) {
-  const normalized = title.replace(/^\[/, "");
+  const normalized = title
+    .replace(/^\[(?:꼼꼼시공|꼼꼼욕실)\]\s*/, "")
+    .replace(/^\[/, "");
   return normalized.match(/^([가-힣]+?)(?:\s+)?(?:변기|양변기|세면대|세면기|수전|샤워기|욕실장|거울)/)?.[1]
     ?? title.match(/^([^\s｜|]+)/)?.[1]?.replace(/[\[\]]/g, "")
     ?? "서울·인천·경기";
@@ -116,13 +121,19 @@ function extractArea(title) {
 function extractSiteLabel(title, area) {
   let detail = title.includes("｜") || title.includes("|")
     ? title.split(/[｜|]/).slice(1).join(" ")
-    : title.replace(/^\[[^\]]+\]\s*/, "");
+    : title.replace(/^(?:\s*\[[^\]]+\])+\s*/, "");
+  const escapedArea = area.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   detail = detail
-    .replace(new RegExp(`^${area.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*`), "")
-    .replace(/^(?:변기|양변기|세면대|세면기|수전|샤워기|욕실장|거울)\s*교체\s*(?:후기|사례|시공)?\s*/i, "");
+    .replace(new RegExp(`^${escapedArea}(?=\\s|$)\\s*`), "")
+    .replace(new RegExp(`^(?:${escapedArea})?(?:변기|양변기|세면대|세면기|수전|샤워기|욕실장|거울)\\s*(?:교체|시공)\\s*`, "i"), "")
+    .replace(/^[,·\s]+/, "")
+    .replace(/^(?:(?:변기|양변기|세면대|세면기|수전|샤워기|욕실장|거울)\s*(?:교체|시공)\s*(?:후기|사례|시공)?\s*[,·]?\s*)+/i, "");
   const productMarker = detail.search(/(?:대림바스|이바스|대림도비도스|하츠|이누스|아메리칸스탠다드|한샘바스|인토)|\b(?:[A-Z]{2,4}-?\d+[A-Z]?|IC\d+E?)\b/i);
   if (productMarker > 0) detail = detail.slice(0, productMarker);
   detail = detail
+    .replace(/\s+(?:노후(?:되고|된)?|깨진|깨짐|파손(?:된)?|금가있는|금이\s*간|막힌|막힘|수압\s*(?:약한|문제로)|답답한\s*물내림|고장난|(?:부속|변기|제품)고장(?:으로)?|비데일체형변기\s*고장(?:으로)?).*$/i, "")
+    .replace(/\s+(?:치마형)?(?:양)?변기(?:교체|설치|시공)?.*$/i, "")
+    .replace(/\s+세면대(?:교체|설치|시공)?.*$/i, "")
     .replace(/\s+(?:투피스|원피스|치마형)?\s*(?:양)?변기\s*(?:교체|설치|시공).*$/i, "")
     .replace(/[·｜|]+$/g, "")
     .replace(/\s+/g, " ")
@@ -130,8 +141,16 @@ function extractSiteLabel(title, area) {
   return detail.length > 48 ? `${detail.slice(0, 48).trim()}…` : detail;
 }
 
+function createLocationLabel(area, siteLabel) {
+  if (!siteLabel) return area;
+  if (!siteLabel.startsWith(area)) return `${area} ${siteLabel}`;
+  const remainder = siteLabel.slice(area.length);
+  if (!remainder || /^\s/.test(remainder) || /^(?:구|시|군)/.test(remainder)) return siteLabel;
+  return `${area} ${remainder}`;
+}
+
 function createDisplayTitle(area, siteLabel, service, product) {
-  const location = siteLabel ? (siteLabel.startsWith(area) ? siteLabel : `${area} ${siteLabel}`) : area;
+  const location = createLocationLabel(area, siteLabel);
   return [location, service, product].filter(Boolean).join(" | ");
 }
 
@@ -197,10 +216,10 @@ function applyEditorialProcessing(post, previous) {
   const product = extractProduct(post.title);
   const issues = extractIssues(post.title, "");
   const highlights = selectSourceHighlights(post.content, area, product);
-  const issueText = issues.length ? `${issues.slice(0, 2).join("·")} 증상을 확인하고` : "원문에 기록된 현장 상태를 확인한 뒤";
-  const productText = product ? `${product} 제품으로 ` : "";
-  const location = siteLabel ? (siteLabel.startsWith(area) ? siteLabel : `${area} ${siteLabel}`) : area;
-  const summary = `${location} 현장에서 ${issueText} 진행한 ${service} 사례입니다. ${productText}시공한 기록을 지역·제품·대표 사진 중심으로 정리했으며, 정확한 표현과 전체 과정은 사람이 작성한 네이버 블로그 원문을 우선합니다.`;
+  const reasonText = issues.length ? `${issues.slice(0, 2).join("·")} 문제로 ` : "";
+  const productText = product ? `${product} 설치 모습과 ` : "";
+  const location = createLocationLabel(area, siteLabel);
+  const summary = `${location}에서 ${reasonText}진행한 ${service} 현장입니다. ${productText}우리 집과 비슷한 조건인지 사진과 실제 작업 내용을 확인해 보세요.`;
   const sourceHash = createHash("sha256").update(JSON.stringify([EDITORIAL_VERSION, post.title, post.content, post.images])).digest("hex");
   const processedAt = previous?.sourceHash === sourceHash && previous?.processedAt ? previous.processedAt : SYNC_DATE;
   const quality = area !== "서울·인천·경기" && service !== "욕실 부분시공" && highlights.length >= 2 && post.images.length >= 1
