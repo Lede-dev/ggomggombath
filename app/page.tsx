@@ -202,14 +202,6 @@ export default function Home() {
           <img src="/logo.svg" alt="꼼꼼욕실" width="110" height="66" />
           <div><strong>{brand.name}</strong><span>{brand.englishName}</span></div>
         </div>
-        <div className="footer-info">
-          <p>욕실 부분시공 전문 · {brand.serviceArea}</p>
-          <p className="footer-contact">
-            <span>상담 및 시공 문의</span>
-            <strong><PhoneIcon /> {brand.phone}</strong>
-            <a href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 ↗</a>
-          </p>
-        </div>
         <div className="social-links" aria-label="공식 채널">
           <a href={brand.naverBlog} target="_blank" rel="noreferrer">NAVER BLOG ↗</a>
           <a href={brand.youtube} target="_blank" rel="noreferrer">YOUTUBE ↗</a>

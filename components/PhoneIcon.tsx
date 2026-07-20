@@ -2,7 +2,7 @@ export function PhoneIcon() {
   return (
     <svg
       className="phone-icon"
-      viewBox="0 0 24 24"
+      viewBox="2 2 20 20"
       aria-hidden="true"
       focusable="false"
     >

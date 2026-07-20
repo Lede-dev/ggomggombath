@@ -77,9 +77,9 @@ button, summary { font: inherit; }
 .hero h1 { margin: 28px 0 24px; color: var(--deep); font-size: clamp(54px, 6.8vw, 100px); line-height: .98; letter-spacing: -.075em; font-weight: 850; }
 .hero h1 em { color: var(--blue); font-style: normal; }
 .hero-description { margin: 0; color: #435762; font-size: clamp(16px, 1.4vw, 20px); line-height: 1.75; letter-spacing: -.02em; }
-.hero-phone { display: flex; align-items: baseline; gap: 13px; margin: 25px 0 0; color: var(--navy); }
-.hero-phone .phone-icon { width: 24px; }
-.hero-phone strong { font-size: clamp(18px, 1.6vw, 23px); font-weight: 850; letter-spacing: .02em; }
+.hero-phone { display: flex; align-items: center; gap: 8px; margin: 25px 0 0; color: var(--navy); }
+.hero-phone .phone-icon { width: 24px; height: 24px; }
+.hero-phone strong { font-size: clamp(18px, 1.6vw, 23px); font-weight: 850; line-height: 1; letter-spacing: .02em; }
 .hero-actions { display: flex; gap: 10px; margin-top: 18px; }
 .button { display: inline-flex; min-height: 54px; align-items: center; justify-content: center; gap: 26px; padding: 0 24px; border: 1px solid var(--navy); font-size: 14px; font-weight: 800; transition: transform .2s ease, background .2s ease; }
 .button:hover { transform: translateY(-2px); }
@@ -136,7 +136,7 @@ button, summary { font: inherit; }
 .service-note span { color: var(--sky); font-size: 11px; letter-spacing: .12em; }
 .service-note strong { font-size: 18px; }
 .service-note .service-phone { justify-self: end; display: flex; align-items: center; gap: 8px; color: var(--sky); font-size: 13px; font-weight: 750; }
-.service-note .phone-icon { width: 21px; }
+.service-note .phone-icon { width: 20px; height: 20px; }
 
 .section-heading-row > div { align-self: end; }
 .underlined-link { display: inline-block; margin-top: 22px; padding-bottom: 5px; border-bottom: 1px solid var(--navy); color: var(--navy); font-size: 13px; font-weight: 800; }
@@ -180,24 +180,17 @@ button, summary { font: inherit; }
 .final-cta h2 { position: relative; z-index: 2; color: white; }
 .final-cta h2 span { color: var(--sky); }
 .final-cta-actions { position: relative; z-index: 2; display: flex; justify-content: center; gap: 10px; margin-top: 36px; }
-.final-phone { display: inline-flex; min-height: 54px; align-items: center; justify-content: center; gap: 12px; padding: 0 24px; background: white; color: var(--navy); font-size: 14px; font-weight: 800; }
-.final-phone .phone-icon { width: 22px; }
+.final-phone { display: inline-flex; min-height: 54px; align-items: center; justify-content: center; gap: 7px; padding: 0 24px; background: white; color: var(--navy); font-size: 14px; font-weight: 800; line-height: 1; }
+.final-phone .phone-icon { width: 20px; height: 20px; }
 .final-cta .button { position: relative; z-index: 2; }
 .cta-watermark { position: absolute; right: -50px; bottom: -78px; width: min(38vw, 500px); opacity: .08; filter: brightness(0) invert(1); transform: rotate(-7deg); }
 
-.site-footer { display: grid; grid-template-columns: 1.2fr 1fr .9fr; gap: 40px; padding: 64px max(28px, calc((100vw - var(--max)) / 2)) 30px; background: var(--paper); }
+.site-footer { display: grid; grid-template-columns: 1fr auto; gap: 40px; padding: 64px max(28px, calc((100vw - var(--max)) / 2)) 30px; background: var(--paper); }
 .footer-brand { display: flex; align-items: center; gap: 14px; }
 .footer-brand img { width: 94px; }
 .footer-brand div { display: flex; flex-direction: column; }
 .footer-brand strong { color: var(--navy); font-size: 20px; }
 .footer-brand span { margin-top: 3px; color: var(--muted); font-size: 8px; letter-spacing: .17em; }
-.footer-info { color: var(--muted); font-size: 12px; line-height: 1.8; }
-.footer-info p { margin: 0; }
-.footer-info a { color: var(--navy); font-weight: 800; }
-.footer-contact { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 12px; }
-.footer-contact span:first-child { flex-basis: 100%; }
-.footer-contact strong { display: inline-flex; align-items: center; gap: 6px; color: var(--navy); font-size: 13px; }
-.footer-contact .phone-icon { width: 17px; }
 .social-links { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; font-size: 10px; font-weight: 800; letter-spacing: .1em; }
 .social-links a:hover { color: var(--accent); }
 .copyright { grid-column: 1 / -1; margin: 28px 0 0; padding-top: 24px; border-top: 1px solid var(--line); color: #829099; font-size: 8px; letter-spacing: .14em; }
@@ -211,7 +204,7 @@ button, summary { font: inherit; }
   .mobile-menu nav { position: absolute; right: 0; top: 32px; width: 210px; display: flex; flex-direction: column; padding: 18px; background: var(--paper); border: 1px solid var(--line); box-shadow: 0 18px 34px rgba(9,59,92,.12); }
   .mobile-menu nav a { padding: 11px 7px; font-size: 13px; font-weight: 700; }
   .mobile-menu nav .mobile-phone { display: flex; align-items: center; gap: 7px; padding: 11px 7px; color: var(--navy); font-size: 13px; font-weight: 800; }
-  .mobile-menu nav .phone-icon { width: 18px; }
+  .mobile-menu nav .phone-icon { width: 18px; height: 18px; }
   .hero { grid-template-columns: 1fr; grid-template-rows: auto auto auto; padding-top: 78px; }
   .hero-copy { padding-bottom: 0; }
   .hero-visual { min-height: 520px; }
