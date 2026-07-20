@@ -140,7 +140,7 @@ export default function Home() {
               <Link className="underlined-link" href="/works">시공 후기 전체보기 →</Link>
             </div>
           </div>
-          <LatestPosts posts={blogPosts} />
+          <LatestPosts posts={blogPosts.slice(0, 3)} />
         </section>
 
         <section className="process section-pad" id="process" aria-labelledby="process-title">
