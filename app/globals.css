@@ -19,6 +19,7 @@
 html { scroll-padding-top: 84px; }
 body {
   margin: 0;
+  overflow-anchor: none;
   background: var(--paper);
   color: var(--ink);
   font-family: Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;

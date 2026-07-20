@@ -1,6 +1,7 @@
 import { HeroLatestPost } from "@/components/HeroLatestPost";
 import { LatestPosts } from "@/components/LatestPosts";
 import { PhoneIcon } from "@/components/PhoneIcon";
+import { SectionLink } from "@/components/SectionLink";
 import blogPostsData from "@/data/blog-posts.json";
 import blogStatsData from "@/data/blog-stats.json";
 import { brand, faqs, processSteps, reasons, services, type BlogStats, type CasePost } from "@/data/site";
@@ -8,6 +9,12 @@ import { brand, faqs, processSteps, reasons, services, type BlogStats, type Case
 const blogPosts = blogPostsData as CasePost[];
 const blogStats = blogStatsData as BlogStats;
 const latestPost = blogPosts.find((post) => post.image) ?? blogPosts[0];
+const sectionNavigation = [
+  { targetId: "services", label: "부분시공" },
+  { targetId: "cases", label: "시공후기" },
+  { targetId: "process", label: "진행과정" },
+  { targetId: "faq", label: "자주 묻는 질문" },
+] as const;
 
 const organizationSchema = {
   "@context": "https://schema.org",
@@ -39,18 +46,17 @@ export default function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
 
       <header className="site-header">
-        <a className="brand-lockup" href="#top" aria-label="꼼꼼욕실 홈">
+        <SectionLink className="brand-lockup" targetId="top" aria-label="꼼꼼욕실 홈">
           <img src="/logo.svg" alt="" width="94" height="56" />
           <span>
             <strong>{brand.name}</strong>
             <small>{brand.englishName}</small>
           </span>
-        </a>
+        </SectionLink>
         <nav className="desktop-nav" aria-label="주요 메뉴">
-          <a href="#services">부분시공</a>
-          <a href="#cases">시공후기</a>
-          <a href="#process">진행과정</a>
-          <a href="#faq">자주 묻는 질문</a>
+          {sectionNavigation.map((item) => (
+            <SectionLink key={item.targetId} targetId={item.targetId}>{item.label}</SectionLink>
+          ))}
         </nav>
         <a className="header-blog-cta" href={brand.naverBlog} target="_blank" rel="noreferrer">
           네이버 블로그 <span aria-hidden="true">↗</span>
@@ -58,10 +64,9 @@ export default function Home() {
         <details className="mobile-menu">
           <summary aria-label="메뉴 열기">MENU</summary>
           <nav aria-label="모바일 메뉴">
-            <a href="#services">부분시공</a>
-            <a href="#cases">시공후기</a>
-            <a href="#process">진행과정</a>
-            <a href="#faq">자주 묻는 질문</a>
+            {sectionNavigation.map((item) => (
+              <SectionLink key={item.targetId} targetId={item.targetId}>{item.label}</SectionLink>
+            ))}
             <a href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 ↗</a>
             <span className="mobile-phone"><PhoneIcon /> {brand.phone}</span>
           </nav>
@@ -78,7 +83,7 @@ export default function Home() {
             <p className="hero-phone"><PhoneIcon /><strong>{brand.phone}</strong></p>
             <div className="hero-actions">
               <a className="button button-primary" href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 보기 <span aria-hidden="true">↗</span></a>
-              <a className="button button-ghost" href="#cases">실제 시공 보기</a>
+              <SectionLink className="button button-ghost" targetId="cases">실제 시공 보기</SectionLink>
             </div>
           </div>
 

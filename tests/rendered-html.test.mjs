@@ -6,6 +6,7 @@ const outputRoot = new URL("../dist/client/", import.meta.url);
 const assetsConfigUrl = new URL("../wrangler.assets.jsonc", import.meta.url);
 const globalStylesUrl = new URL("../app/globals.css", import.meta.url);
 const blogStatsUrl = new URL("../data/blog-stats.json", import.meta.url);
+const sectionLinkUrl = new URL("../components/SectionLink.tsx", import.meta.url);
 
 test("exports the homepage as a static asset", async () => {
   const [html, statsSource] = await Promise.all([
@@ -21,6 +22,9 @@ test("exports the homepage as a static asset", async () => {
   assert.match(renderedText, /COMPLETED WORKS/);
   assert.match(renderedText, new RegExp(`${stats.completedWorks}<small>건<\\/small>`));
   assert.match(renderedText, /네이버 블로그 ‘시공후기’ 기록 기준/);
+  for (const targetId of ["services", "cases", "process", "faq"]) {
+    assert.match(html, new RegExp(`href="#${targetId}"`));
+  }
   assert.doesNotMatch(html, /\/api\/blog/);
 });
 
@@ -57,9 +61,16 @@ test("deploys only static assets without a Worker entry point", async () => {
 });
 
 test("anchor navigation does not hold mouse-wheel scrolling", async () => {
-  const styles = await readFile(globalStylesUrl, "utf8");
+  const [styles, sectionLink] = await Promise.all([
+    readFile(globalStylesUrl, "utf8"),
+    readFile(sectionLinkUrl, "utf8"),
+  ]);
 
   assert.doesNotMatch(styles, /scroll-behavior:\s*smooth/);
+  assert.match(styles, /overflow-anchor:\s*none/);
   assert.match(styles, /html\s*{\s*scroll-padding-top:\s*84px;\s*}/);
   assert.match(styles, /@media \(max-width:\s*980px\)[\s\S]*html\s*{\s*scroll-padding-top:\s*76px;\s*}/);
+  assert.match(sectionLink, /event\.preventDefault\(\)/);
+  assert.match(sectionLink, /window\.scrollTo\(\{ top, behavior: "auto" \}\)/);
+  assert.match(sectionLink, /window\.history\.replaceState/);
 });
