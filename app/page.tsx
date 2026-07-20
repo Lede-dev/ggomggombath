@@ -55,6 +55,7 @@ export default function Home() {
             <a href="#cases">시공후기</a>
             <a href="#process">진행과정</a>
             <a href="#faq">자주 묻는 질문</a>
+            <a href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 ↗</a>
             <a href={brand.phoneHref}>전화 상담 {brand.phone}</a>
           </nav>
         </details>
@@ -69,7 +70,7 @@ export default function Home() {
             <p className="hero-description">전체 공사가 부담스러울 때, 필요한 부분만 정확하게.<br />매일 쓰는 욕실의 불편을 깔끔한 교체 시공으로 해결합니다.</p>
             <div className="hero-actions">
               <a className="button button-primary" href={brand.phoneHref}>전화 상담 {brand.phone} <span aria-hidden="true">☎</span></a>
-              <a className="button button-ghost" href="#cases">실제 시공 보기</a>
+              <a className="button button-ghost" href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 보기 <span aria-hidden="true">↗</span></a>
             </div>
           </div>
 
