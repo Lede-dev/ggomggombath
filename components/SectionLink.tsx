@@ -4,9 +4,19 @@ import type { AnchorHTMLAttributes, MouseEvent } from "react";
 
 type SectionLinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
   targetId: string;
+  path: string;
 };
 
-export function SectionLink({ targetId, onClick, children, ...props }: SectionLinkProps) {
+export function scrollToSection(targetId: string) {
+  const target = document.getElementById(targetId);
+  if (!target) return;
+
+  const headerHeight = document.querySelector<HTMLElement>(".site-header")?.offsetHeight ?? 0;
+  const top = Math.max(0, window.scrollY + target.getBoundingClientRect().top - headerHeight);
+  window.scrollTo({ top, behavior: "auto" });
+}
+
+export function SectionLink({ targetId, path, onClick, children, ...props }: SectionLinkProps) {
   function handleClick(event: MouseEvent<HTMLAnchorElement>) {
     onClick?.(event);
     if (
@@ -20,23 +30,20 @@ export function SectionLink({ targetId, onClick, children, ...props }: SectionLi
       return;
     }
 
-    const target = document.getElementById(targetId);
-    if (!target) return;
+    if (!document.getElementById(targetId)) return;
 
     event.preventDefault();
-
-    const headerHeight = document.querySelector<HTMLElement>(".site-header")?.offsetHeight ?? 0;
-    const top = Math.max(0, window.scrollY + target.getBoundingClientRect().top - headerHeight);
-
-    window.scrollTo({ top, behavior: "auto" });
-    window.history.replaceState(window.history.state, "", `${window.location.pathname}${window.location.search}`);
+    if (window.location.pathname !== path) {
+      window.history.pushState(window.history.state, "", path);
+    }
+    scrollToSection(targetId);
 
     const mobileMenu = event.currentTarget.closest("details");
     if (mobileMenu instanceof HTMLDetailsElement) mobileMenu.open = false;
   }
 
   return (
-    <a {...props} href={`#${targetId}`} onClick={handleClick}>
+    <a {...props} href={path} onClick={handleClick}>
       {children}
     </a>
   );

@@ -2,21 +2,15 @@ import { HeroLatestPost } from "@/components/HeroLatestPost";
 import { LatestPosts } from "@/components/LatestPosts";
 import { PhoneContact } from "@/components/PhoneContact";
 import { SectionLink } from "@/components/SectionLink";
+import { SectionRouteSync } from "@/components/SectionRouteSync";
 import { StaticImage } from "@/components/StaticImage";
 import blogPostsData from "@/data/blog-posts.json";
 import blogStatsData from "@/data/blog-stats.json";
-import { brand, faqs, processSteps, reasons, services, type BlogStats, type CasePost } from "@/data/site";
+import { brand, faqs, processSteps, reasons, sectionNavigation, services, type BlogStats, type CasePost } from "@/data/site";
 
 const blogPosts = blogPostsData as CasePost[];
 const blogStats = blogStatsData as BlogStats;
 const latestPost = blogPosts.find((post) => post.image) ?? blogPosts[0];
-const sectionNavigation = [
-  { targetId: "services", label: "부분시공" },
-  { targetId: "cases", label: "시공후기" },
-  { targetId: "process", label: "진행과정" },
-  { targetId: "faq", label: "자주 묻는 질문" },
-] as const;
-
 const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "HomeAndConstructionBusiness",
@@ -45,9 +39,10 @@ export default function Home() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <SectionRouteSync />
 
       <header className="site-header">
-        <SectionLink className="brand-lockup" targetId="top" aria-label="꼼꼼욕실 홈">
+        <SectionLink className="brand-lockup" targetId="top" path="/" aria-label="꼼꼼욕실 홈">
           <StaticImage src={brand.logoPath} alt="" width="94" height="56" loading="eager" />
           <span>
             <strong>{brand.name}</strong>
@@ -56,7 +51,7 @@ export default function Home() {
         </SectionLink>
         <nav className="desktop-nav" aria-label="주요 메뉴">
           {sectionNavigation.map((item) => (
-            <SectionLink key={item.targetId} targetId={item.targetId}>{item.label}</SectionLink>
+            <SectionLink key={item.targetId} targetId={item.targetId} path={item.path}>{item.label}</SectionLink>
           ))}
         </nav>
         <a className="header-blog-cta" href={brand.naverBlog} target="_blank" rel="noreferrer">
@@ -66,7 +61,7 @@ export default function Home() {
           <summary aria-label="메뉴 열기">MENU</summary>
           <nav aria-label="모바일 메뉴">
             {sectionNavigation.map((item) => (
-              <SectionLink key={item.targetId} targetId={item.targetId}>{item.label}</SectionLink>
+              <SectionLink key={item.targetId} targetId={item.targetId} path={item.path}>{item.label}</SectionLink>
             ))}
             <a href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 ↗</a>
             <PhoneContact className="mobile-phone" />
@@ -84,7 +79,7 @@ export default function Home() {
             <PhoneContact className="hero-phone" />
             <div className="hero-actions">
               <a className="button button-primary" href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 보기 <span aria-hidden="true">↗</span></a>
-              <SectionLink className="button button-ghost" targetId="cases">실제 시공 보기</SectionLink>
+              <SectionLink className="button button-ghost" targetId="cases" path="/review">실제 시공 보기</SectionLink>
             </div>
           </div>
 

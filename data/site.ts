@@ -20,6 +20,13 @@ export type BlogStats = {
   sourceUrl: string;
 };
 
+export const sectionNavigation = [
+  { targetId: "services", label: "부분시공", path: "/about" },
+  { targetId: "cases", label: "시공후기", path: "/review" },
+  { targetId: "process", label: "진행과정", path: "/process" },
+  { targetId: "faq", label: "자주 묻는 질문", path: "/faq" },
+] as const;
+
 export function getNaverImageVariants(source: string) {
   const withType = (type: "s3" | "w2" | "w1") => {
     try {
