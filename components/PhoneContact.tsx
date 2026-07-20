@@ -13,9 +13,6 @@ export function PhoneContact({ className = "" }: { className?: string }) {
           <PhoneIcon />
           <strong>{brand.phone}</strong>
         </a>
-        <a className="phone-sms-link" href={brand.smsHref} aria-label={`${brand.phone} 문자 보내기`}>
-          문자
-        </a>
       </span>
     </div>
   );

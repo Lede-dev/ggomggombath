@@ -209,16 +209,12 @@ button, summary { font: inherit; }
   .phone-contact .phone-static { display: none; }
   .phone-contact .phone-mobile-actions { display: flex; width: 100%; align-items: center; }
   .phone-call-link { display: flex; flex: 1; align-items: center; justify-content: center; gap: 7px; }
-  .phone-sms-link { display: flex; min-height: 40px; align-items: center; justify-content: center; padding: 0 12px; border-left: 1px solid currentColor; font-size: 12px; font-weight: 800; }
   .mobile-menu nav .mobile-phone { display: block; padding: 0; color: var(--navy); font-size: 13px; font-weight: 800; }
-  .mobile-menu nav .mobile-phone .phone-sms-link { color: var(--accent); }
   .mobile-menu nav .phone-icon { width: 18px; height: 18px; }
   .hero-phone .phone-mobile-actions { width: auto; }
   .hero-phone .phone-call-link { justify-content: flex-start; }
-  .hero-phone .phone-sms-link { min-height: 32px; margin-left: 8px; border: 1px solid var(--line); color: var(--blue); }
   .final-phone { padding: 0; }
   .final-phone .phone-call-link { padding: 0 20px; }
-  .final-phone .phone-sms-link { min-height: 54px; padding: 0 18px; border-left-color: var(--line); color: var(--blue); }
   .hero { grid-template-columns: 1fr; grid-template-rows: auto auto auto; padding-top: 78px; }
   .hero-copy { padding-bottom: 0; }
   .hero-visual { min-height: 520px; }

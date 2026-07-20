@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import { brand } from "@/data/site";
 import "./globals.css";
 
-const faviconUrl = "/favicon.svg?v=20260721-navy";
+const faviconVersion = "20260721-navy-v2";
+const faviconUrl = `/favicon.svg?v=${faviconVersion}`;
+const darkFaviconUrl = `/favicon-dark.svg?v=${faviconVersion}`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://ggomggombath.com"),
@@ -26,7 +29,14 @@ export const metadata: Metadata = {
     description: "서울·인천·경기 욕실 부분시공 전문",
     images: ["/og.png"],
   },
-  icons: { icon: faviconUrl, shortcut: faviconUrl, apple: "/logo.svg" },
+  icons: {
+    icon: [
+      { url: faviconUrl, type: "image/svg+xml" },
+      { url: darkFaviconUrl, type: "image/svg+xml", media: "(prefers-color-scheme: dark)" },
+    ],
+    shortcut: faviconUrl,
+    apple: brand.logoPath,
+  },
 };
 
 export const viewport: Viewport = {

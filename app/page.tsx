@@ -24,7 +24,7 @@ const organizationSchema = {
   description: brand.description,
   areaServed: ["서울특별시", "인천광역시", "경기도"],
   url: "https://ggomggombath.com",
-  logo: "https://ggomggombath.com/logo.svg",
+  logo: new URL(brand.logoPath, "https://ggomggombath.com").toString(),
   telephone: brand.phone,
   sameAs: [brand.naverBlog, brand.youtube, brand.instagram],
   knowsAbout: ["변기 교체", "세면기 교체", "욕실 수전 교체", "욕실장 교체", "욕실 부분시공"],
@@ -48,7 +48,7 @@ export default function Home() {
 
       <header className="site-header">
         <SectionLink className="brand-lockup" targetId="top" aria-label="꼼꼼욕실 홈">
-          <StaticImage src="/logo.svg" alt="" width="94" height="56" loading="eager" />
+          <StaticImage src={brand.logoPath} alt="" width="94" height="56" loading="eager" />
           <span>
             <strong>{brand.name}</strong>
             <small>{brand.englishName}</small>
@@ -203,13 +203,13 @@ export default function Home() {
             <PhoneContact className="final-phone" />
             <a className="button button-outline-light" href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 <span aria-hidden="true">↗</span></a>
           </div>
-          <StaticImage className="cta-watermark" src="/logo.svg" alt="" width="420" height="250" loading="lazy" />
+          <StaticImage className="cta-watermark" src={brand.logoPath} alt="" width="420" height="250" loading="lazy" />
         </section>
       </main>
 
       <footer className="site-footer">
         <div className="footer-brand">
-          <StaticImage src="/logo.svg" alt="꼼꼼욕실" width="110" height="66" loading="lazy" />
+          <StaticImage src={brand.logoPath} alt="꼼꼼욕실" width="110" height="66" loading="lazy" />
           <div><strong>{brand.name}</strong><span>{brand.englishName}</span></div>
         </div>
         <div className="social-links" aria-label="공식 채널">
