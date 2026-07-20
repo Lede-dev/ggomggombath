@@ -23,11 +23,14 @@ test("exports the homepage as a static asset", async () => {
   assert.match(html, /<title>꼼꼼욕실/);
   assert.match(html, /010-2939-2537/);
   assert.match(html, /LATEST WORK/);
-  assert.match(renderedText, /COMPLETED WORKS/);
+  assert.match(renderedText, /꼼꼼욕실 시공 사례/);
   assert.match(renderedText, new RegExp(`${stats.completedWorks}<small>건<\\/small>`));
-  assert.match(renderedText, /네이버 블로그 ‘시공후기’ 기록 기준/);
+  assert.match(renderedText, /꼼꼼욕실 시공 사례/);
+  assert.match(renderedText, /필요한 곳만 정확하게 바꾼 실제 욕실 현장/);
   assert.match(renderedText, /최근에 마친 욕실 시공 사례를 소개합니다/);
   assert.doesNotMatch(renderedText, /자동으로 불러옵니다/);
+  assert.doesNotMatch(renderedText, /블로그의 실제 상담|기록 기준|네이버 블로그 상담/);
+  assert.match(renderedText, /시공 가능 여부와 예상 비용이 궁금하시면 전화로 편하게 상담해 주세요/);
   for (const path of ["about", "review", "process", "faq"]) {
     assert.match(html, new RegExp(`href="/${path}"`));
     assert.ok(await readFile(new URL(`${path}.html`, outputRoot), "utf8"));

@@ -168,6 +168,7 @@ button, summary { font: inherit; }
 
 .faq-layout { display: grid; grid-template-columns: .8fr 1.2fr; gap: 12%; margin-top: 62px; }
 .faq-layout > div:first-child > p { max-width: 360px; margin: 28px 0 0; color: var(--muted); font-size: 14px; line-height: 1.8; }
+.faq-phone { display: inline-flex; margin-top: 16px; color: var(--navy); font-size: 15px; font-weight: 800; }
 .faq-list { border-top: 1px solid var(--line); }
 .faq-list details { border-bottom: 1px solid var(--line); }
 .faq-list summary { display: grid; grid-template-columns: 54px 1fr auto; gap: 14px; align-items: center; padding: 28px 0; cursor: pointer; list-style: none; font-size: 18px; font-weight: 750; letter-spacing: -.03em; }
@@ -213,6 +214,8 @@ button, summary { font: inherit; }
   .mobile-menu nav .phone-icon { width: 18px; height: 18px; }
   .hero-phone .phone-mobile-actions { width: auto; }
   .hero-phone .phone-call-link { justify-content: flex-start; }
+  .faq-phone .phone-mobile-actions { width: auto; }
+  .faq-phone .phone-call-link { justify-content: flex-start; }
   .final-phone { padding: 0; }
   .final-phone .phone-call-link { padding: 0 20px; }
   .hero { grid-template-columns: 1fr; grid-template-rows: auto auto auto; padding-top: 78px; }

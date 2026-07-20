@@ -120,7 +120,7 @@ export default function Home() {
           <div className="section-kicker light">02 — SERVICES</div>
           <div className="section-heading-row light">
             <h2 id="services-title">필요한 만큼,<br />정확한 부분시공</h2>
-            <p>블로그의 실제 상담·시공 범위를 기준으로 구성한 꼼꼼욕실의 주요 서비스입니다.</p>
+            <p>변기·세면기·수전부터 욕실장과 액세서리까지, 꼭 필요한 부분을 정확하고 깔끔하게 교체해 드립니다.</p>
           </div>
           <div className="service-list">
             {services.map((service) => (
@@ -144,8 +144,8 @@ export default function Home() {
               <div className="completed-work-count">
                 <strong>{blogStats.completedWorks.toLocaleString("ko-KR")}<small>건</small></strong>
                 <div>
-                  <span>COMPLETED WORKS</span>
-                  <p>네이버 블로그 ‘{blogStats.sourceCategory}’ 기록 기준</p>
+                  <span>꼼꼼욕실 시공 사례</span>
+                  <p>필요한 곳만 정확하게 바꾼 실제 욕실 현장</p>
                 </div>
               </div>
               <p>최근에 마친 욕실 시공 사례를 소개합니다. 현장별 제품과 시공 과정을 사진으로 자세히 확인해 보세요.</p>
@@ -178,7 +178,8 @@ export default function Home() {
           <div className="faq-layout">
             <div>
               <h2 id="faq-title">시공 전,<br />많이 묻는 질문</h2>
-              <p>더 궁금한 내용은 네이버 블로그 상담을 통해 현장 사진과 함께 문의해 주세요.</p>
+              <p>시공 가능 여부와 예상 비용이 궁금하시면 전화로 편하게 상담해 주세요.</p>
+              <PhoneContact className="faq-phone" />
             </div>
             <div className="faq-list">
               {faqs.map((faq, index) => (
