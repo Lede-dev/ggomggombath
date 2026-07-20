@@ -99,30 +99,3 @@ export const faqs = [
     answer: "단품 교체는 현장 상태와 품목에 따라 달라집니다. 철거 후 추가 보수가 필요한 경우를 포함해 상담 시 예상 시간을 안내합니다.",
   },
 ] as const;
-
-export const fallbackPosts: CasePost[] = [
-  {
-    title: "노원구 변기교체 후기｜상계아이파크3차 대림바스 CC-735 설치",
-    link: "https://blog.naver.com/refresh-bath/224346358464",
-    date: "2026.07.14",
-    category: "시공후기",
-    image: "https://blogthumb.pstatic.net/MjAyNjA3MTRfMjg0/MDAxNzg0MDEwNTk4NjU1.pgpXVan8LtiB3gvmhq41xU9QYQDEAd94pj1pBfF9CoMg.fVzMpeDzYPxAg-AkJh9DoPO-r7WiAWuPWtrE1ix3g90g.JPEG/20260713_143607.jpg?type=s3",
-    excerpt: "깨진 변기를 철거하고 대림바스 투피스 변기로 깔끔하게 교체한 실제 현장입니다.",
-  },
-  {
-    title: "송파구 변기교체 후기｜가락동 헬리오시티 물내림 문제 해결",
-    link: "https://blog.naver.com/refresh-bath/224345446833",
-    date: "2026.07.13",
-    category: "시공후기",
-    image: "https://blogthumb.pstatic.net/MjAyNjA3MTNfMjk0/MDAxNzgzOTM4MjQ2MzIy.1qEfhuYRa9P8MU_OW57fS4nhiPWQOr88lWVpZDQxhd8g.K69Kz-1WQ6HP02E2ylNPSmVbd7t9fQzqqlrGeAL-FEsg.JPEG/20260709_103812.jpg?type=s3",
-    excerpt: "자주 막히고 약해진 물내림 문제를 점검하고 대림바스 CC-735로 교체했습니다.",
-  },
-  {
-    title: "일산 변기교체 후기｜식사동 위시티블루밍3단지 설치",
-    link: "https://blog.naver.com/refresh-bath/224340490993",
-    date: "2026.07.08",
-    category: "시공후기",
-    image: "https://blogthumb.pstatic.net/MjAyNjA3MDhfMjM5/MDAxNzgzNDk1MjA2ODc3.wFHNkEKcKNZSLxT1pWVzdbD-yMxg5WQSd2D7MxA0-KUg.EpO7xqmleTzAE6xvgq1dKuNW1-y3JEPoYSbPBQgPpjMg.JPEG/1783493867648.jpg?type=s3",
-    excerpt: "욕실 상태를 확인한 뒤 CC-766 투피스 변기를 안정적으로 설치한 사례입니다.",
-  },
-];

@@ -1,7 +1,11 @@
 import { HeroLatestPost } from "@/components/HeroLatestPost";
 import { LatestPosts } from "@/components/LatestPosts";
 import { PhoneIcon } from "@/components/PhoneIcon";
-import { brand, fallbackPosts, faqs, processSteps, reasons, services } from "@/data/site";
+import blogPostsData from "@/data/blog-posts.json";
+import { brand, faqs, processSteps, reasons, services, type CasePost } from "@/data/site";
+
+const blogPosts = blogPostsData as CasePost[];
+const latestPost = blogPosts.find((post) => post.image) ?? blogPosts[0];
 
 const organizationSchema = {
   "@context": "https://schema.org",
@@ -77,7 +81,7 @@ export default function Home() {
           </div>
 
           <div className="hero-visual" aria-label="꼼꼼욕실 브랜드와 실제 시공 현장">
-            <HeroLatestPost initialPost={fallbackPosts[0]} />
+            <HeroLatestPost post={latestPost} />
             <div className="hero-seal">
               <img src="/logo.svg" alt="꼼꼼욕실 로고" width="160" height="94" />
               <span>CLEAN DETAIL</span>
@@ -147,7 +151,7 @@ export default function Home() {
               <a className="underlined-link" href={brand.naverBlog} target="_blank" rel="noreferrer">시공 후기 전체보기 ↗</a>
             </div>
           </div>
-          <LatestPosts initialPosts={fallbackPosts} />
+          <LatestPosts posts={blogPosts} />
         </section>
 
         <section className="process section-pad" id="process" aria-labelledby="process-title">

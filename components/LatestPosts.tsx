@@ -1,24 +1,6 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import type { CasePost } from "@/data/site";
 
-export function LatestPosts({ initialPosts }: { initialPosts: CasePost[] }) {
-  const [posts, setPosts] = useState(initialPosts);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    fetch("/api/blog", { signal: controller.signal })
-      .then((response) => (response.ok ? response.json() : Promise.reject()))
-      .then((data: { items?: CasePost[] }) => {
-        if (data.items?.length) setPosts(data.items.slice(0, 3));
-      })
-      .catch(() => undefined);
-
-    return () => controller.abort();
-  }, []);
-
+export function LatestPosts({ posts }: { posts: CasePost[] }) {
   return (
     <div className="post-grid">
       {posts.map((post, index) => (
@@ -44,4 +26,3 @@ export function LatestPosts({ initialPosts }: { initialPosts: CasePost[] }) {
     </div>
   );
 }
-

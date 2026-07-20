@@ -1,7 +1,8 @@
 # 꼼꼼욕실 홈페이지
 
 욕실 부분시공 전문 브랜드 꼼꼼욕실의 공식 홈페이지입니다. vinext와 Cloudflare
-Workers를 사용하며 네이버 블로그 RSS에서 최신 시공 후기 3개를 자동으로 불러옵니다.
+정적 자산으로 배포합니다. 네이버 블로그 RSS의 최신 시공 후기 3개는 빌드 시
+데이터 파일로 동기화되므로 방문자의 Worker 호출 없이 노출됩니다.
 
 ## Prerequisites
 
@@ -92,9 +93,10 @@ actions tied to the current ChatGPT user. Leave public content anonymous.
 ## Useful Commands
 
 - `npm run dev`: start local development
+- `npm run sync:blog`: fetch the latest three Naver posts into static data
 - `npm run build`: verify the vinext build output
 - `npm run deploy:cloudflare`: build and deploy to Cloudflare Workers
-- `npm test`: build the starter and verify its rendered loading skeleton
+- `npm test`: build and verify the production static output
 - `npm run db:generate`: generate Drizzle migrations after schema changes
 
 ## Learn More
