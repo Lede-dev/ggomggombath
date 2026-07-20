@@ -87,12 +87,8 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="hero-visual" aria-label="꼼꼼욕실 브랜드와 실제 시공 현장">
+          <div className="hero-visual" aria-label="꼼꼼욕실 실제 시공 현장">
             <HeroLatestPost post={latestPost} />
-            <div className="hero-seal">
-              <img src="/logo.svg" alt="꼼꼼욕실 로고" width="160" height="94" />
-              <span>CLEAN DETAIL</span>
-            </div>
             <div className="service-ticket">
               <span>PARTIAL BATH RENOVATION</span>
               <strong>변기 · 세면기 · 수전 · 욕실장</strong>
