@@ -11,13 +11,13 @@ export function HeroLatestPost({ post }: { post: CasePost }) {
         <Link
           className="hero-latest-link"
           href={`/works/${post.id}`}
-          aria-label={`${post.title} 시공 후기 보기`}
+          aria-label={`${post.displayTitle} 시공 사례 보기`}
         >
           <StaticImage
             src={image.medium}
             srcSet={`${image.thumbnail} 365w, ${image.medium} 743w, ${image.large} 936w`}
             sizes="(max-width: 720px) calc(100vw - 40px), (max-width: 1100px) 52vw, 620px"
-            alt={`꼼꼼욕실 최신 시공 현장: ${post.title}`}
+            alt={`꼼꼼욕실 최신 시공 현장: ${post.displayTitle}`}
             width="743"
             height="991"
             referrerPolicy="no-referrer"

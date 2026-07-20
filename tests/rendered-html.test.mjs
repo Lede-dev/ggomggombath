@@ -49,16 +49,28 @@ test("exports every substantial first-party construction page", async () => {
   ]);
   assert.equal(posts.length, stats.completedWorks);
   assert.ok(posts.length > 100);
+  assert.equal(new Set(posts.map((post) => post.seoTitle)).size, posts.length);
 
   for (const post of posts) {
     assert.ok(post.content.length >= 20);
     assert.ok(post.images.length >= 3);
+    assert.ok(post.displayTitle.length > 5);
+    assert.ok(post.summary.includes("네이버 블로그 원문"));
+    assert.ok(post.highlights.length >= 2 && post.highlights.length <= 3);
+    assert.match(post.sourceHash, /^[a-f0-9]{64}$/);
+    assert.equal(post.editorialMode, "source-derived");
+    assert.equal(post.editorialVersion, "source-structure-v1");
     const html = await readFile(new URL(`works/${post.id}.html`, outputRoot), "utf8");
     assert.match(html, new RegExp(`<link rel="canonical" href="https://ggomggombath\\.com/works/${post.id}"`));
     assert.match(html, /BlogPosting/);
     assert.match(html, /BreadcrumbList/);
+    assert.match(html, /isBasedOn/);
+    assert.match(html, /citation/);
+    assert.match(html, /사람이 작성한 원문 기준/);
+    assert.match(html, /class="source-highlights"/);
     assert.match(html, new RegExp(`blog\\.naver\\.com/refresh-bath/${post.id}`));
     assert.doesNotMatch(html, /<img[^>]*alt=""/);
+    assert.ok((html.match(/<p(?:\s|>)/g) ?? []).length < 30);
   }
 });
 
@@ -85,7 +97,7 @@ test("exports discovery, RSS and app metadata as static files", async () => {
 
   assert.match(robots, /Sitemap: https:\/\/ggomggombath\.com\/sitemap\.xml/);
   assert.match(sitemap, /<loc>https:\/\/ggomggombath\.com\/<\/loc>/);
-  assert.equal((sitemap.match(/<loc>/g) ?? []).length, posts.length + 10);
+  assert.equal((sitemap.match(/<loc>/g) ?? []).length, posts.filter((post) => post.quality === "indexable").length + 10);
   assert.match(sitemap, /https:\/\/ggomggombath\.com\/services\/toilet-replacement/);
   assert.match(sitemap, /https:\/\/ggomggombath\.com\/works\/224346358464/);
   assert.match(rss, /<title>꼼꼼욕실 시공 사례<\/title>/);

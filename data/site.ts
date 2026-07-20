@@ -14,6 +14,8 @@ export type Service = {
 export type CasePost = {
   id: string;
   title: string;
+  displayTitle: string;
+  seoTitle: string;
   link: string;
   date: string;
   dateIso: string;
@@ -22,12 +24,21 @@ export type CasePost = {
   images: string[];
   excerpt: string;
   content: string[];
+  summary: string;
+  highlights: string[];
   area: string;
+  siteLabel: string;
+  service: string;
   product: string;
   issues: string[];
+  sourceHash: string;
+  processedAt: string;
+  editorialMode: "source-derived";
+  editorialVersion: string;
+  quality: "indexable" | "source-only";
 };
 
-export type WorkCardPost = Pick<CasePost, "id" | "title" | "date" | "dateIso" | "image" | "excerpt" | "area" | "product">;
+export type WorkCardPost = Pick<CasePost, "id" | "displayTitle" | "date" | "dateIso" | "image" | "excerpt" | "area" | "product" | "service">;
 
 export type BlogStats = {
   completedWorks: number;

@@ -1,4 +1,5 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -9,10 +10,17 @@ const WORKS_CATEGORY_URL = "https://blog.naver.com/PostList.naver?blogId=refresh
 const WORKS_LIST_URL = "https://blog.naver.com/PostTitleListAsync.naver";
 const SITE_URL = "https://ggomggombath.com";
 const SITE_UPDATED_AT = "2026-07-21";
+const SYNC_DATE = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Seoul",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+}).format(new Date());
 const LIST_PAGE_SIZE = 30;
 const DETAIL_CONCURRENCY = 2;
 const REQUEST_INTERVAL_MS = 650;
 const RSS_ITEMS_LIMIT = 20;
+const EDITORIAL_VERSION = "source-structure-v1";
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const postsPath = resolve(rootDir, "data/blog-posts.json");
 const statsPath = resolve(rootDir, "data/blog-stats.json");
@@ -65,15 +73,159 @@ function formatNaverDate(value) {
 }
 
 function extractProduct(title) {
-  return title.match(/(?:대림바스|이바스|대림도비도스|하츠|이누스)\s+(?:[A-Z]{2,4}-?\d+[A-Z]?|IC\d+E?)/i)?.[0] ?? "현장 규격에 맞는 양변기";
+  return title.match(/(?:대림바스|이바스|대림도비도스|하츠|이누스|아메리칸스탠다드|한샘바스|인토)\s*(?:[A-Z]{2,4}-?\d+[A-Z]?|IC\d+E?)/i)?.[0].replace(/([가-힣])([A-Z])/i, "$1 $2") ?? "";
 }
 
 function extractIssues(title, excerpt) {
   const source = `${title} ${excerpt}`;
-  const candidates = ["깨짐", "막힘", "물내림", "냄새", "누수", "고장", "노후"];
-  const labels = { 깨짐: "도기 파손", 막힘: "반복 막힘", 물내림: "물내림 저하", 냄새: "욕실 냄새", 누수: "누수", 고장: "제품 고장", 노후: "제품 노후" };
-  const issues = candidates.filter((keyword) => source.includes(keyword)).map((keyword) => labels[keyword]);
-  return issues.length ? [...new Set(issues)] : ["노후 제품 교체"];
+  const rules = [
+    [/깨짐|깨진|파손/, "도기 파손"],
+    [/막힘|막힌/, "반복 막힘"],
+    [/물내림/, "물내림 저하"],
+    [/냄새|악취/, "욕실 냄새"],
+    [/누수|물샘/, "누수"],
+    [/고장/, "제품 고장"],
+    [/노후/, "제품 노후"],
+  ];
+  const issues = rules.filter(([pattern]) => pattern.test(source)).map(([, label]) => label);
+  return [...new Set(issues)];
+}
+
+function extractService(title, content = []) {
+  const detect = (source) => {
+    if (/변기|양변기/.test(source)) return "양변기 교체";
+    if (/세면대|세면기/.test(source)) return "세면기 교체";
+    if (/수전|샤워기|샤워 수전/.test(source)) return "수전·샤워 교체";
+    if (/욕실장|거울장|슬라이드장/.test(source)) return "욕실장·거울 교체";
+    return "";
+  };
+  const titleService = detect(title);
+  if (titleService) return titleService;
+  const contentService = detect(content.slice(0, 12).join(" "));
+  if (contentService) return contentService;
+  return "욕실 부분시공";
+}
+
+function extractArea(title) {
+  const normalized = title.replace(/^\[/, "");
+  return normalized.match(/^([가-힣]+?)(?:\s+)?(?:변기|양변기|세면대|세면기|수전|샤워기|욕실장|거울)/)?.[1]
+    ?? title.match(/^([^\s｜|]+)/)?.[1]?.replace(/[\[\]]/g, "")
+    ?? "서울·인천·경기";
+}
+
+function extractSiteLabel(title, area) {
+  let detail = title.includes("｜") || title.includes("|")
+    ? title.split(/[｜|]/).slice(1).join(" ")
+    : title.replace(/^\[[^\]]+\]\s*/, "");
+  detail = detail
+    .replace(new RegExp(`^${area.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*`), "")
+    .replace(/^(?:변기|양변기|세면대|세면기|수전|샤워기|욕실장|거울)\s*교체\s*(?:후기|사례|시공)?\s*/i, "");
+  const productMarker = detail.search(/(?:대림바스|이바스|대림도비도스|하츠|이누스|아메리칸스탠다드|한샘바스|인토)|\b(?:[A-Z]{2,4}-?\d+[A-Z]?|IC\d+E?)\b/i);
+  if (productMarker > 0) detail = detail.slice(0, productMarker);
+  detail = detail
+    .replace(/\s+(?:투피스|원피스|치마형)?\s*(?:양)?변기\s*(?:교체|설치|시공).*$/i, "")
+    .replace(/[·｜|]+$/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return detail.length > 48 ? `${detail.slice(0, 48).trim()}…` : detail;
+}
+
+function createDisplayTitle(area, siteLabel, service, product) {
+  const location = siteLabel ? (siteLabel.startsWith(area) ? siteLabel : `${area} ${siteLabel}`) : area;
+  return [location, service, product].filter(Boolean).join(" | ");
+}
+
+function mergeSourceParagraphs(content) {
+  const merged = [];
+  let buffer = "";
+  const flush = () => {
+    const value = buffer.replace(/\s+/g, " ").trim();
+    if (value) merged.push(value);
+    buffer = "";
+  };
+
+  for (const rawParagraph of content) {
+    const paragraph = rawParagraph.replace(/[✅📌■▶✔]/gu, " ").replace(/꼼꼼욕실/g, " ").replace(/\s+/g, " ").trim();
+    if (!paragraph || /^#/.test(paragraph)) continue;
+    const looksLikeHeading = paragraph.length < 34 && /(이유|증상|과정|완료|제품|교체|시공|마무리|안내)$/.test(paragraph);
+    if (looksLikeHeading) {
+      flush();
+      continue;
+    }
+    buffer = buffer ? `${buffer} ${paragraph}` : paragraph;
+    if (/[.!?]$/.test(paragraph) || /(?:니다|습니다|됩니다|세요|했어요|있어요)$/.test(paragraph) || buffer.length >= 150) flush();
+  }
+  flush();
+  return merged;
+}
+
+function selectSourceHighlights(content, area, product) {
+  const candidates = mergeSourceParagraphs(content)
+    .filter((paragraph) => paragraph.length >= 35 && paragraph.length <= 260)
+    .filter((paragraph) => !/(안녕하세요|010-2939-2537|상담 문의|문의 주세요|감사합니다|꼼꼼욕실입니다)/.test(paragraph));
+  const specificityScore = (paragraph) => {
+    let score = 0;
+    if (/이번 사례|이번 현장|해당 현장|고객님|요청하신|작업 현장|시공 현장/.test(paragraph)) score += 8;
+    if (product && paragraph.includes(product)) score += 5;
+    if (area && paragraph.includes(area)) score += 3;
+    if (/아파트|오피스텔|주택|상가/.test(paragraph)) score += 2;
+    if (/문의가 많|고려해|일반적으로|특히 아래|단순 뚫음/.test(paragraph)) score -= 5;
+    return score;
+  };
+  const rankedCandidates = [...candidates].sort((a, b) => specificityScore(b) - specificityScore(a));
+  const groups = [
+    /깨짐|막힘|물내림|냄새|누수|고장|노후|문제|교체 문의|교체 요청/,
+    /철거|설치|교체|배관|수평|백시멘트|실리콘|플랜지|부속/,
+    /완료|마무리|테스트|확인|정상|검수|물내림/,
+  ];
+  const selected = [];
+  for (const pattern of groups) {
+    const match = rankedCandidates.find((paragraph) => pattern.test(paragraph) && !selected.includes(paragraph));
+    if (match) selected.push(match);
+  }
+  for (const paragraph of rankedCandidates) {
+    if (selected.length >= 3) break;
+    if (!selected.includes(paragraph)) selected.push(paragraph);
+  }
+  return selected.slice(0, 3);
+}
+
+function applyEditorialProcessing(post, previous) {
+  const service = extractService(post.title, post.content);
+  const area = extractArea(post.title);
+  const siteLabel = extractSiteLabel(post.title, area);
+  const product = extractProduct(post.title);
+  const issues = extractIssues(post.title, "");
+  const highlights = selectSourceHighlights(post.content, area, product);
+  const issueText = issues.length ? `${issues.slice(0, 2).join("·")} 증상을 확인하고` : "원문에 기록된 현장 상태를 확인한 뒤";
+  const productText = product ? `${product} 제품으로 ` : "";
+  const location = siteLabel ? (siteLabel.startsWith(area) ? siteLabel : `${area} ${siteLabel}`) : area;
+  const summary = `${location} 현장에서 ${issueText} 진행한 ${service} 사례입니다. ${productText}시공한 기록을 지역·제품·대표 사진 중심으로 정리했으며, 정확한 표현과 전체 과정은 사람이 작성한 네이버 블로그 원문을 우선합니다.`;
+  const sourceHash = createHash("sha256").update(JSON.stringify([EDITORIAL_VERSION, post.title, post.content, post.images])).digest("hex");
+  const processedAt = previous?.sourceHash === sourceHash && previous?.processedAt ? previous.processedAt : SYNC_DATE;
+  const quality = area !== "서울·인천·경기" && service !== "욕실 부분시공" && highlights.length >= 2 && post.images.length >= 1
+    ? "indexable"
+    : "source-only";
+  const displayTitle = createDisplayTitle(area, siteLabel, service, product);
+
+  return {
+    ...post,
+    area,
+    siteLabel,
+    service,
+    product,
+    issues,
+    displayTitle,
+    seoTitle: displayTitle,
+    excerpt: summary,
+    summary,
+    highlights,
+    sourceHash,
+    processedAt,
+    editorialMode: "source-derived",
+    editorialVersion: EDITORIAL_VERSION,
+    quality,
+  };
 }
 
 function decodeNaverValue(value) {
@@ -107,7 +259,6 @@ function createPost(record, previous) {
   const content = Array.isArray(previous?.content) ? previous.content : [];
   const images = Array.isArray(previous?.images) ? previous.images : [];
   const excerpt = previous?.excerpt || summarizeContent(content, title);
-  const area = title.match(/^([^\s｜|]+)/)?.[1] ?? "서울·인천·경기";
 
   return {
     id: record.logNo,
@@ -120,7 +271,8 @@ function createPost(record, previous) {
     images,
     excerpt,
     content,
-    area,
+    area: extractArea(title),
+    service: extractService(title, content),
     product: extractProduct(title),
     issues: extractIssues(title, excerpt),
   };
@@ -205,17 +357,17 @@ function escapeXml(value) {
 
 function createSitemap(posts) {
   const staticEntries = staticRoutes.map((route) => `  <url>\n    <loc>${SITE_URL}${route.path}</loc>\n    <lastmod>${SITE_UPDATED_AT}</lastmod>\n    <changefreq>${route.frequency}</changefreq>\n    <priority>${route.priority}</priority>\n  </url>`);
-  const workEntries = posts.map((post) => `  <url>\n    <loc>${SITE_URL}/works/${post.id}</loc>\n    <lastmod>${post.dateIso}</lastmod>\n    <changefreq>yearly</changefreq>\n    <priority>0.7</priority>\n  </url>`);
+  const workEntries = posts.filter((post) => post.quality === "indexable").map((post) => `  <url>\n    <loc>${SITE_URL}/works/${post.id}</loc>\n    <lastmod>${post.processedAt || post.dateIso}</lastmod>\n    <changefreq>yearly</changefreq>\n    <priority>0.7</priority>\n  </url>`);
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[...staticEntries, ...workEntries].join("\n")}\n</urlset>\n`;
 }
 
 function createRss(posts) {
-  const items = posts.slice(0, RSS_ITEMS_LIMIT).map((post) => `    <item>\n      <title>${escapeXml(post.title)}</title>\n      <link>${SITE_URL}/works/${post.id}</link>\n      <guid>${SITE_URL}/works/${post.id}</guid>\n      <pubDate>${new Date(`${post.dateIso}T12:00:00+09:00`).toUTCString()}</pubDate>\n      <description>${escapeXml(post.excerpt)}</description>\n    </item>`).join("\n");
+  const items = posts.slice(0, RSS_ITEMS_LIMIT).map((post) => `    <item>\n      <title>${escapeXml(post.displayTitle)}</title>\n      <link>${SITE_URL}/works/${post.id}</link>\n      <guid>${SITE_URL}/works/${post.id}</guid>\n      <pubDate>${new Date(`${post.dateIso}T12:00:00+09:00`).toUTCString()}</pubDate>\n      <description>${escapeXml(post.summary)}</description>\n    </item>`).join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0">\n  <channel>\n    <title>꼼꼼욕실 시공 사례</title>\n    <link>${SITE_URL}/works</link>\n    <description>서울·인천·경기 욕실 부분시공 실제 사례</description>\n    <language>ko-KR</language>\n${items}\n  </channel>\n</rss>\n`;
 }
 
 function createLlms(posts) {
-  const workLinks = posts.slice(0, 5).map((post) => `- [${post.title}](${SITE_URL}/works/${post.id})`).join("\n");
+  const workLinks = posts.slice(0, 5).map((post) => `- [${post.displayTitle}](${SITE_URL}/works/${post.id})`).join("\n");
   return `# 꼼꼼욕실\n\n> 서울·인천·경기 지역의 욕실 부분시공 및 욕실 제품 교체 전문 서비스입니다.\n\n## 핵심 페이지\n- [서비스 안내](${SITE_URL}/services)\n- [양변기 교체](${SITE_URL}/services/toilet-replacement)\n- [세면기 교체](${SITE_URL}/services/washbasin-replacement)\n- [수전·샤워 교체](${SITE_URL}/services/faucet-replacement)\n- [욕실장·거울 교체](${SITE_URL}/services/bathroom-cabinet)\n- [시공 사례](${SITE_URL}/works)\n- [진행 과정](${SITE_URL}/process)\n- [자주 묻는 질문](${SITE_URL}/faq)\n\n## 최근 실제 시공 사례\n${workLinks}\n\n## 공식 정보\n- 서비스 지역: 서울 전 지역, 인천광역시, 경기도\n- 전화 상담: 010-2939-2537\n- 네이버 블로그: https://blog.naver.com/refresh-bath\n- 유튜브: https://www.youtube.com/@%EA%BC%BC%EA%BC%BC%EC%9A%95%EC%8B%A4\n- 인스타그램: https://www.instagram.com/ggomggombath/\n\n서비스 범위와 시공 지역은 공식 홈페이지를, 사례의 상세 현장 기록은 각 페이지에 연결된 꼼꼼욕실 네이버 블로그 원문을 함께 참고해 주세요.\n`;
 }
 
@@ -258,15 +410,21 @@ if (uniqueRecords.length !== firstPage.totalCount || uniqueRecords.some((record)
 let downloadedDetails = 0;
 const posts = uniqueRecords.map((record) => createPost(record, previousById.get(record.logNo)));
 const enrichedPosts = await mapWithConcurrency(posts, DETAIL_CONCURRENCY, async (post) => {
-  if (post.content.length >= 3 && post.images.length >= 1) return post;
+  const previous = previousById.get(post.id);
+  if (post.content.length >= 3 && post.images.length >= 1) return applyEditorialProcessing(post, previous);
 
   const html = await fetchText(`https://m.blog.naver.com/${BLOG_ID}/${post.id}`, `Naver post ${post.id}`);
   const detail = parsePostContent(html, post.title);
   if (detail.content.length < 3 || detail.images.length < 1) throw new Error(`Naver post ${post.id} did not contain usable construction content`);
   downloadedDetails += 1;
   const excerpt = summarizeContent(detail.content, post.title);
-  return { ...post, ...detail, excerpt, image: detail.images[0], issues: extractIssues(post.title, excerpt) };
+  return applyEditorialProcessing({ ...post, ...detail, excerpt, image: detail.images[0], issues: extractIssues(post.title, excerpt) }, previous);
 });
+const displayTitleCounts = new Map();
+for (const post of enrichedPosts) displayTitleCounts.set(post.displayTitle, (displayTitleCounts.get(post.displayTitle) ?? 0) + 1);
+for (const post of enrichedPosts) {
+  if (displayTitleCounts.get(post.displayTitle) > 1) post.seoTitle = `${post.displayTitle} (${post.date})`;
+}
 
 const stats = {
   completedWorks: firstPage.totalCount,

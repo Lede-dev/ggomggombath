@@ -9,7 +9,7 @@ export function LatestPosts({ posts }: { posts: CasePost[] }) {
         const image = getNaverImageVariants(post.image);
 
         return <article className={`post-card post-card-${index + 1}`} key={post.link}>
-          <Link href={`/works/${post.id}`} aria-label={`${post.title} 자세히 보기`}>
+          <Link href={`/works/${post.id}`} aria-label={`${post.displayTitle} 자세히 보기`}>
             <div className="post-image-wrap">
               {/* RSS에 포함된 꼼꼼욕실 자체 시공 이미지입니다. */}
               <StaticImage
@@ -30,7 +30,7 @@ export function LatestPosts({ posts }: { posts: CasePost[] }) {
                 <span>{post.category}</span>
                 <time>{post.date}</time>
               </div>
-              <h3>{post.title}</h3>
+              <h3>{post.displayTitle}</h3>
               <p>{post.excerpt}</p>
               <span className="text-link">시공 사례 보기 <span aria-hidden="true">→</span></span>
             </div>

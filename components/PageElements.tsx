@@ -48,11 +48,11 @@ export function WorkCards({ posts, limit }: { posts: WorkCardPost[]; limit?: num
         <article className="work-card" key={post.id}>
           <Link href={`/works/${post.id}`}>
             <div className="work-card-image">
-              <StaticImage src={post.image} alt={`${post.area} ${post.product} 변기 교체 시공 현장`} width="800" height="600" loading="lazy" referrerPolicy="no-referrer" />
+              <StaticImage src={post.image} alt={`${post.area} ${post.product || post.service} 시공 현장`} width="800" height="600" loading="lazy" referrerPolicy="no-referrer" />
             </div>
             <div className="work-card-copy">
               <div><span>{post.area}</span><time dateTime={post.dateIso}>{post.date}</time></div>
-              <h2>{post.title}</h2>
+              <h2>{post.displayTitle}</h2>
               <p>{post.excerpt}</p>
               <b>사례 자세히 보기 <span aria-hidden="true">→</span></b>
             </div>
