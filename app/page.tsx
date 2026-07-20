@@ -1,4 +1,4 @@
-import { HeroSlideshow } from "@/components/HeroSlideshow";
+import { HeroLatestPost } from "@/components/HeroLatestPost";
 import { LatestPosts } from "@/components/LatestPosts";
 import { brand, fallbackPosts, faqs, processSteps, reasons, services } from "@/data/site";
 
@@ -74,7 +74,7 @@ export default function Home() {
           </div>
 
           <div className="hero-visual" aria-label="꼼꼼욕실 브랜드와 실제 시공 현장">
-            <HeroSlideshow initialPosts={fallbackPosts} />
+            <HeroLatestPost initialPost={fallbackPosts[0]} />
             <div className="hero-seal">
               <img src="/logo.svg" alt="꼼꼼욕실 로고" width="160" height="94" />
               <span>CLEAN DETAIL<br />SINCE 2018</span>
