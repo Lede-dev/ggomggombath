@@ -74,3 +74,11 @@ test("anchor navigation does not hold mouse-wheel scrolling", async () => {
   assert.match(sectionLink, /window\.scrollTo\(\{ top, behavior: "auto" \}\)/);
   assert.match(sectionLink, /window\.history\.replaceState/);
 });
+
+test("aligns the recent-work heading and completed-work metric", async () => {
+  const styles = await readFile(globalStylesUrl, "utf8");
+
+  assert.match(styles, /\.cases \.section-heading-row\s*{\s*align-items:\s*start;\s*}/);
+  assert.match(styles, /\.cases \.section-heading-row > div\s*{\s*align-self:\s*start;\s*}/);
+  assert.match(styles, /\.completed-work-count\s*{[^}]*align-items:\s*center;[^}]*padding:\s*18px 0 18px 18px;/);
+});
