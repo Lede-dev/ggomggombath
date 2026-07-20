@@ -29,6 +29,8 @@ body {
 a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; }
 .phone-icon { width: 20px; height: 20px; flex: none; color: var(--accent); }
+.phone-static { display: flex; align-items: center; gap: 7px; }
+.phone-mobile-actions { display: none; }
 button, summary { font: inherit; }
 ::selection { background: var(--blue); color: white; }
 
@@ -204,8 +206,19 @@ button, summary { font: inherit; }
   .mobile-menu summary::-webkit-details-marker { display: none; }
   .mobile-menu nav { position: absolute; right: 0; top: 32px; width: 210px; display: flex; flex-direction: column; padding: 18px; background: var(--paper); border: 1px solid var(--line); box-shadow: 0 18px 34px rgba(9,59,92,.12); }
   .mobile-menu nav a { padding: 11px 7px; font-size: 13px; font-weight: 700; }
-  .mobile-menu nav .mobile-phone { display: flex; align-items: center; gap: 7px; padding: 11px 7px; color: var(--navy); font-size: 13px; font-weight: 800; }
+  .phone-contact .phone-static { display: none; }
+  .phone-contact .phone-mobile-actions { display: flex; width: 100%; align-items: center; }
+  .phone-call-link { display: flex; flex: 1; align-items: center; justify-content: center; gap: 7px; }
+  .phone-sms-link { display: flex; min-height: 40px; align-items: center; justify-content: center; padding: 0 12px; border-left: 1px solid currentColor; font-size: 12px; font-weight: 800; }
+  .mobile-menu nav .mobile-phone { display: block; padding: 0; color: var(--navy); font-size: 13px; font-weight: 800; }
+  .mobile-menu nav .mobile-phone .phone-sms-link { color: var(--accent); }
   .mobile-menu nav .phone-icon { width: 18px; height: 18px; }
+  .hero-phone .phone-mobile-actions { width: auto; }
+  .hero-phone .phone-call-link { justify-content: flex-start; }
+  .hero-phone .phone-sms-link { min-height: 32px; margin-left: 8px; border: 1px solid var(--line); color: var(--blue); }
+  .final-phone { padding: 0; }
+  .final-phone .phone-call-link { padding: 0 20px; }
+  .final-phone .phone-sms-link { min-height: 54px; padding: 0 18px; border-left-color: var(--line); color: var(--blue); }
   .hero { grid-template-columns: 1fr; grid-template-rows: auto auto auto; padding-top: 78px; }
   .hero-copy { padding-bottom: 0; }
   .hero-visual { min-height: 520px; }

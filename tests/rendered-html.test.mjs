@@ -8,6 +8,7 @@ const globalStylesUrl = new URL("../app/globals.css", import.meta.url);
 const blogStatsUrl = new URL("../data/blog-stats.json", import.meta.url);
 const sectionLinkUrl = new URL("../components/SectionLink.tsx", import.meta.url);
 const faviconUrl = new URL("../public/favicon.svg", import.meta.url);
+const logoUrl = new URL("../public/logo.svg", import.meta.url);
 
 test("exports the homepage as a static asset", async () => {
   const [html, statsSource] = await Promise.all([
@@ -121,12 +122,30 @@ test("keeps the service and process sections concise and stationary", async () =
 });
 
 test("keeps the favicon legible in dark browser themes", async () => {
-  const favicon = await readFile(faviconUrl, "utf8");
+  const [favicon, logo] = await Promise.all([
+    readFile(faviconUrl, "utf8"),
+    readFile(logoUrl, "utf8"),
+  ]);
 
   assert.match(favicon, /@media \(prefers-color-scheme:\s*dark\)/);
   assert.match(favicon, /\.frame\s*{\s*fill:\s*#093B5C;\s*stroke:\s*#F7F3ED;/);
   assert.match(favicon, /\.fixture\s*{\s*fill:\s*#093B5C;\s*stroke:\s*#F7F3ED;/);
+  assert.match(favicon, /\.sparkle\s*{\s*fill:\s*#0B4F7B;/);
+  assert.doesNotMatch(favicon, /#E76F43/);
+  assert.doesNotMatch(logo, /#E76F43/);
 
   const html = await readFile(new URL("index.html", outputRoot), "utf8");
-  assert.match(html, /favicon\.svg\?v=20260721-dark/);
+  assert.match(html, /favicon\.svg\?v=20260721-navy/);
+});
+
+test("offers direct call and text actions on mobile", async () => {
+  const [html, styles] = await Promise.all([
+    readFile(new URL("index.html", outputRoot), "utf8"),
+    readFile(globalStylesUrl, "utf8"),
+  ]);
+
+  assert.match(html, /href="tel:\+821029392537"/);
+  assert.match(html, /href="sms:\+821029392537"/);
+  assert.match(styles, /\.phone-mobile-actions\s*{\s*display:\s*none;/);
+  assert.match(styles, /@media \(max-width:\s*980px\)[\s\S]*\.phone-contact \.phone-mobile-actions\s*{\s*display:\s*flex;/);
 });

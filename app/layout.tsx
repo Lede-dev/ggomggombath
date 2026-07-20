@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
-const faviconUrl = "/favicon.svg?v=20260721-dark";
+const faviconUrl = "/favicon.svg?v=20260721-navy";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://ggomggombath.com"),
