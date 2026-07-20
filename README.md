@@ -19,6 +19,9 @@ npm run deploy:cloudflare
 Cloudflare Workers 배포 시 `npm run build`가 생성한
 `dist/server/wrangler.json`을 사용합니다.
 
+Worker 이름, 커스텀 도메인, 호환성 날짜는 `wrangler.jsonc`에서 데이터로
+관리하고, 로컬 Sites 바인딩만 `vite.config.ts`에서 결합합니다.
+
 ## Included Shape
 
 - edit site code under `app/`

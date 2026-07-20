@@ -12,13 +12,6 @@ const { d1, r2 } = hostingConfig;
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 
 const localBindingConfig = {
-  name: "ggomggombath",
-  main: "./worker/index.ts",
-  compatibility_flags: ["nodejs_compat"],
-  routes: [
-    { pattern: "ggomggombath.com", custom_domain: true },
-    { pattern: "www.ggomggombath.com", custom_domain: true },
-  ],
   d1_databases: d1
     ? [
         {
@@ -57,6 +50,7 @@ export default defineConfig(async () => {
       sites(),
       cloudflare({
         viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
+        configPath: "./wrangler.jsonc",
         config: localBindingConfig,
       }),
     ],
