@@ -1,17 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
-  <title id="title">꼼꼼욕실 로고</title>
-  <desc id="desc">정원 안에 반짝이는 깨끗한 세면대와 수전이 있는 파란색 심볼</desc>
-  <circle cx="128" cy="128" r="111" fill="#fff" stroke="#0B4F7B" stroke-width="8"/>
-  <g fill="#fff" stroke="#0B4F7B" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M63 112h130c7 0 10 5 7 11l-5 9H61l-5-9c-3-6 0-11 7-11Z"/>
-    <path d="M67 132c5 19 19 30 44 32l-12 32c18 5 39 6 58 1l-8-33h23c12-6 19-17 22-32"/>
-    <path d="M119 75c3-12 13-20 27-20h10c14 0 25 10 25 24v33"/>
-    <path d="M110 91c3-13 13-21 27-21s24 8 27 21h-54Z"/>
-    <path d="M83 58l6 10 11 5-11 5-6 10-6-10-11-5 11-5 6-10Z"/>
-  </g>
-  <g fill="none" stroke="#0B4F7B" stroke-width="8" stroke-linecap="round">
-    <path d="M123 102v6"/>
-    <path d="M145 102v6"/>
-  </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="logo-title logo-desc">
+  <title id="logo-title">꼼꼼욕실 로고</title>
+  <desc id="logo-desc">원형 프레임 안에 세면대와 수전, 주황색 반짝임이 있는 심볼</desc>
+  <circle cx="128" cy="128" r="108" fill="#fff" stroke="#093B5C" stroke-width="8"/>
 
+  <path
+    d="M182 117V94c0-18-14-32-32-32h-4c-17 0-32 10-38 26l-3 9h37c13 0 24 10 24 23"
+    fill="none"
+    stroke="#0B4F7B"
+    stroke-width="6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <g fill="#fff" stroke="#0B4F7B" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M62 118h132c7 0 11 7 7 13l-6 10H61l-6-10c-4-6 0-13 7-13Z"/>
+    <path d="M65 141c7 23 24 37 48 40l-8 27h46l-8-27c24-3 41-17 48-40H65Z"/>
+  </g>
+
+  <path
+    d="M82 59c2.4 8.2 6.8 12.6 15 15-8.2 2.4-12.6 6.8-15 15-2.4-8.2-6.8-12.6-15-15 8.2-2.4 12.6-6.8 15-15Z"
+    fill="#E76F43"
+  />
+</svg>

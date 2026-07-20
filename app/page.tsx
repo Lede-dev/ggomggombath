@@ -139,11 +139,6 @@ export default function Home() {
               </article>
             ))}
           </div>
-          <div className="service-note">
-            <span>시공 가능 지역</span>
-            <strong>{brand.serviceArea}</strong>
-            <div className="service-phone"><PhoneIcon /> {brand.phone}</div>
-          </div>
         </section>
 
         <section className="cases section-pad" id="cases" aria-labelledby="cases-title">

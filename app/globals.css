@@ -130,11 +130,6 @@ button, summary { font: inherit; }
 .service-row > p { max-width: 410px; margin: 0; color: #b7cbd5; font-size: 14px; line-height: 1.8; }
 .service-row ul { margin: 0; padding: 0; list-style: none; color: #e1edf0; font-size: 13px; line-height: 1.9; }
 .service-row li::before { content: "—"; margin-right: 9px; color: var(--accent); }
-.service-note { display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center; margin-top: 48px; padding: 24px 0; border-top: 1px solid rgba(255,255,255,.18); border-bottom: 1px solid rgba(255,255,255,.18); }
-.service-note span { color: var(--sky); font-size: 11px; letter-spacing: .12em; }
-.service-note strong { font-size: 18px; }
-.service-note .service-phone { justify-self: end; display: flex; align-items: center; gap: 8px; color: var(--sky); font-size: 13px; font-weight: 750; }
-.service-note .phone-icon { width: 20px; height: 20px; }
 
 .section-heading-row > div { align-self: end; }
 .cases .section-heading-row { align-items: start; }
@@ -161,7 +156,7 @@ button, summary { font: inherit; }
 .text-link { display: inline-block; margin-top: 18px; color: var(--navy); font-size: 12px; font-weight: 800; }
 
 .process-layout { display: grid; grid-template-columns: .85fr 1.15fr; gap: 12%; margin-top: 62px; }
-.process-title-wrap { position: sticky; top: 130px; align-self: start; }
+.process-title-wrap { align-self: start; }
 .process-title-wrap p { max-width: 360px; margin: 28px 0 0; color: #b7cbd5; font-size: 15px; line-height: 1.8; }
 .process-list { margin: 0; padding: 0; list-style: none; border-top: 1px solid rgba(255,255,255,.18); }
 .process-list li { display: grid; grid-template-columns: 54px 1fr; gap: 20px; padding: 34px 0; border-bottom: 1px solid rgba(255,255,255,.18); }
@@ -223,12 +218,9 @@ button, summary { font: inherit; }
   .reason-card h3 { margin-top: 54px; }
   .service-row { grid-template-columns: 48px 1fr; }
   .service-row > p, .service-row ul { grid-column: 2; }
-  .service-note { grid-template-columns: 1fr 1fr; gap: 16px; }
-  .service-note .service-phone { grid-column: 1 / -1; justify-self: start; }
   .post-grid { grid-template-columns: 1fr 1fr; }
   .post-card-1 { grid-column: 1 / -1; }
   .post-card-1 .post-image-wrap { aspect-ratio: 16 / 8; }
-  .process-title-wrap { position: static; }
   .site-footer { grid-template-columns: 1fr 1fr; }
   .social-links { align-items: flex-start; }
 }

@@ -106,3 +106,15 @@ test("exports responsive images without a runtime optimizer", async () => {
   assert.match(html, /decoding="async"/);
   assert.doesNotMatch(html, /\/_vinext\/image/);
 });
+
+test("keeps the service and process sections concise and stationary", async () => {
+  const [html, styles] = await Promise.all([
+    readFile(new URL("index.html", outputRoot), "utf8"),
+    readFile(globalStylesUrl, "utf8"),
+  ]);
+
+  assert.doesNotMatch(html, /class="service-note"/);
+  assert.doesNotMatch(styles, /\.service-note/);
+  assert.match(styles, /\.process-title-wrap\s*{\s*align-self:\s*start;\s*}/);
+  assert.doesNotMatch(styles, /\.process-title-wrap\s*{[^}]*position:\s*sticky/);
+});
