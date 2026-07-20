@@ -7,6 +7,7 @@ const assetsConfigUrl = new URL("../wrangler.assets.jsonc", import.meta.url);
 const globalStylesUrl = new URL("../app/globals.css", import.meta.url);
 const blogStatsUrl = new URL("../data/blog-stats.json", import.meta.url);
 const sectionLinkUrl = new URL("../components/SectionLink.tsx", import.meta.url);
+const faviconUrl = new URL("../public/favicon.svg", import.meta.url);
 
 test("exports the homepage as a static asset", async () => {
   const [html, statsSource] = await Promise.all([
@@ -117,4 +118,12 @@ test("keeps the service and process sections concise and stationary", async () =
   assert.doesNotMatch(styles, /\.service-note/);
   assert.match(styles, /\.process-title-wrap\s*{\s*align-self:\s*start;\s*}/);
   assert.doesNotMatch(styles, /\.process-title-wrap\s*{[^}]*position:\s*sticky/);
+});
+
+test("keeps the favicon legible in dark browser themes", async () => {
+  const favicon = await readFile(faviconUrl, "utf8");
+
+  assert.match(favicon, /@media \(prefers-color-scheme:\s*dark\)/);
+  assert.match(favicon, /\.frame\s*{\s*fill:\s*#093B5C;\s*stroke:\s*#F7F3ED;/);
+  assert.match(favicon, /\.fixture\s*{\s*fill:\s*#093B5C;\s*stroke:\s*#F7F3ED;/);
 });
