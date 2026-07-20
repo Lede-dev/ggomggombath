@@ -45,9 +45,10 @@ export default function Home() {
           <a href="#process">진행과정</a>
           <a href="#faq">자주 묻는 질문</a>
         </nav>
-        <a className="header-cta" href={brand.phoneHref}>
-          {brand.phone} <span aria-hidden="true">☎</span>
-        </a>
+        <div className="header-contact">
+          <span>전화 상담</span>
+          <a href={brand.phoneHref}>{brand.phone}</a>
+        </div>
         <details className="mobile-menu">
           <summary aria-label="메뉴 열기">MENU</summary>
           <nav aria-label="모바일 메뉴">
@@ -68,9 +69,10 @@ export default function Home() {
             <p className="eyebrow"><span>욕실 부분시공 전문</span> {brand.serviceArea}</p>
             <h1 id="hero-title">바꿔야 할 곳만,<br /><em>꼼꼼하게.</em></h1>
             <p className="hero-description">전체 공사가 부담스러울 때, 필요한 부분만 정확하게.<br />매일 쓰는 욕실의 불편을 깔끔한 교체 시공으로 해결합니다.</p>
+            <p className="hero-phone"><span>전화 상담</span><a href={brand.phoneHref}>{brand.phone}</a></p>
             <div className="hero-actions">
-              <a className="button button-primary" href={brand.phoneHref}>전화 상담 {brand.phone} <span aria-hidden="true">☎</span></a>
-              <a className="button button-ghost" href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 보기 <span aria-hidden="true">↗</span></a>
+              <a className="button button-primary" href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 보기 <span aria-hidden="true">↗</span></a>
+              <a className="button button-ghost" href="#cases">실제 시공 보기</a>
             </div>
           </div>
 
@@ -78,7 +80,7 @@ export default function Home() {
             <HeroLatestPost initialPost={fallbackPosts[0]} />
             <div className="hero-seal">
               <img src="/logo.svg" alt="꼼꼼욕실 로고" width="160" height="94" />
-              <span>CLEAN DETAIL<br />SINCE 2018</span>
+              <span>CLEAN DETAIL</span>
             </div>
             <div className="service-ticket">
               <span>PARTIAL BATH RENOVATION</span>
