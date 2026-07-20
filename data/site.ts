@@ -27,6 +27,8 @@ export type CasePost = {
   issues: string[];
 };
 
+export type WorkCardPost = Pick<CasePost, "id" | "title" | "date" | "dateIso" | "image" | "excerpt" | "area" | "product">;
+
 export type BlogStats = {
   completedWorks: number;
   sourceCategory: string;

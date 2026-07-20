@@ -2,12 +2,17 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const RSS_URL = "https://rss.blog.naver.com/refresh-bath.xml";
+const BLOG_ID = "refresh-bath";
 const WORKS_CATEGORY = "시공후기";
+const WORKS_CATEGORY_NO = 9;
 const WORKS_CATEGORY_URL = "https://blog.naver.com/PostList.naver?blogId=refresh-bath&categoryNo=9&from=postList&parentCategoryNo=9";
+const WORKS_LIST_URL = "https://blog.naver.com/PostTitleListAsync.naver";
 const SITE_URL = "https://ggomggombath.com";
 const SITE_UPDATED_AT = "2026-07-21";
-const POSTS_LIMIT = 10;
+const LIST_PAGE_SIZE = 30;
+const DETAIL_CONCURRENCY = 2;
+const REQUEST_INTERVAL_MS = 650;
+const RSS_ITEMS_LIMIT = 20;
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const postsPath = resolve(rootDir, "data/blog-posts.json");
 const statsPath = resolve(rootDir, "data/blog-stats.json");
@@ -28,11 +33,6 @@ const staticRoutes = [
   { path: "/faq", priority: "0.7", frequency: "monthly" },
 ];
 
-function readTag(block, tag) {
-  const match = block.match(new RegExp(`<${tag}[^>]*>(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?<\\/${tag}>`, "i"));
-  return match?.[1]?.trim() ?? "";
-}
-
 function decodeEntities(value) {
   return value
     .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(Number.parseInt(code, 16)))
@@ -52,19 +52,15 @@ function stripMarkup(value) {
     .trim();
 }
 
-function formatDate(value) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return { display: value, iso: SITE_UPDATED_AT };
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Seoul",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(date);
-  const part = (type) => parts.find((item) => item.type === type)?.value ?? "";
+function formatNaverDate(value) {
+  const match = value.match(/(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\./);
+  if (!match) return { display: value, iso: SITE_UPDATED_AT };
+  const [, year, rawMonth, rawDay] = match;
+  const month = rawMonth.padStart(2, "0");
+  const day = rawDay.padStart(2, "0");
   return {
-    display: `${part("year")}.${part("month")}.${part("day")}`,
-    iso: `${part("year")}-${part("month")}-${part("day")}`,
+    display: `${year}.${month}.${day}`,
+    iso: `${year}-${month}-${day}`,
   };
 }
 
@@ -80,32 +76,54 @@ function extractIssues(title, excerpt) {
   return issues.length ? [...new Set(issues)] : ["노후 제품 교체"];
 }
 
-function parsePosts(xml) {
-  return (xml.match(/<item>[\s\S]*?<\/item>/gi) ?? []).slice(0, POSTS_LIMIT).map((block) => {
-    const description = readTag(block, "description");
-    const excerptText = stripMarkup(description.replace(/<img[\s\S]*$/i, ""));
-    const title = decodeEntities(readTag(block, "title"));
-    const link = readTag(block, "link").replace(/\?.*$/, "");
-    const id = link.match(/(\d+)\/?$/)?.[1] ?? "";
-    const date = formatDate(readTag(block, "pubDate"));
-    const area = title.match(/^(.+?)\s+변기교체/)?.[1] ?? "서울·인천·경기";
+function decodeNaverValue(value) {
+  try {
+    return decodeURIComponent(value.replace(/\+/g, " "));
+  } catch {
+    return decodeEntities(value.replace(/\+/g, " "));
+  }
+}
 
-    return {
-      id,
-      title,
-      link,
-      date: date.display,
-      dateIso: date.iso,
-      category: decodeEntities(readTag(block, "category")) || WORKS_CATEGORY,
-      image: decodeEntities(description.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1] ?? ""),
-      images: [],
-      excerpt: excerptText.length > 320 ? `${excerptText.slice(0, 320).trim()}…` : excerptText,
-      content: [],
-      area,
-      product: extractProduct(title),
-      issues: extractIssues(title, excerptText),
-    };
-  });
+function parsePostListResponse(source) {
+  const marker = '"postList":';
+  const start = source.indexOf(marker);
+  const end = source.indexOf('],"countPerPage"', start);
+  if (start < 0 || end < 0) throw new Error("Naver post list response was not recognized");
+
+  const postList = JSON.parse(source.slice(start + marker.length, end + 1));
+  const totalCount = Number.parseInt(source.match(/"totalCount":"?(\d+)"?/)?.[1] ?? "", 10);
+  if (!Number.isInteger(totalCount) || totalCount < 1) throw new Error("Naver post list did not contain a valid total count");
+  return { postList, totalCount };
+}
+
+function summarizeContent(content, fallback) {
+  const text = content.join(" ").replace(/\s+/g, " ").trim() || fallback;
+  return text.length > 320 ? `${text.slice(0, 320).trim()}…` : text;
+}
+
+function createPost(record, previous) {
+  const title = decodeNaverValue(record.title);
+  const date = formatNaverDate(record.addDate);
+  const content = Array.isArray(previous?.content) ? previous.content : [];
+  const images = Array.isArray(previous?.images) ? previous.images : [];
+  const excerpt = previous?.excerpt || summarizeContent(content, title);
+  const area = title.match(/^([^\s｜|]+)/)?.[1] ?? "서울·인천·경기";
+
+  return {
+    id: record.logNo,
+    title,
+    link: `https://blog.naver.com/${BLOG_ID}/${record.logNo}`,
+    date: date.display,
+    dateIso: date.iso,
+    category: WORKS_CATEGORY,
+    image: previous?.image ?? images[0] ?? "",
+    images,
+    excerpt,
+    content,
+    area,
+    product: extractProduct(title),
+    issues: extractIssues(title, excerpt),
+  };
 }
 
 function parsePostContent(html, title) {
@@ -128,13 +146,57 @@ function parsePostContent(html, title) {
   return { content: deduplicated.slice(0, 80), images };
 }
 
-function parseCompletedWorks(html) {
-  const normalized = html.replace(/\s+/g, " ");
-  const escapedCategory = WORKS_CATEGORY.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = normalized.match(new RegExp(`<strong[^>]*>\\s*${escapedCategory}\\s*<\\/strong>.{0,100}?([\\d,]+)개의\\s*글`, "i"));
-  const count = Number.parseInt(match?.[1]?.replaceAll(",", "") ?? "", 10);
-  if (!Number.isInteger(count) || count < 1) throw new Error("Naver category page did not contain the completed works count");
-  return count;
+async function mapWithConcurrency(items, limit, mapper) {
+  const results = new Array(items.length);
+  let cursor = 0;
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (cursor < items.length) {
+      const index = cursor;
+      cursor += 1;
+      results[index] = await mapper(items[index], index);
+    }
+  }));
+  return results;
+}
+
+let nextRequestAt = 0;
+async function waitForRequestSlot() {
+  const now = Date.now();
+  const requestAt = Math.max(now, nextRequestAt);
+  nextRequestAt = requestAt + REQUEST_INTERVAL_MS;
+  if (requestAt > now) await new Promise((resolveDelay) => setTimeout(resolveDelay, requestAt - now));
+}
+
+async function fetchText(url, label) {
+  let lastStatus = 0;
+  let lastError;
+  for (let attempt = 1; attempt <= 5; attempt += 1) {
+    await waitForRequestSlot();
+    try {
+      const response = await fetch(url, { headers: requestHeaders, signal: AbortSignal.timeout(20_000) });
+      lastStatus = response.status;
+      if (response.ok) return response.text();
+      if (attempt < 5) {
+        const retryDelay = response.status === 429 ? attempt * 5_000 : attempt * 800;
+        await new Promise((resolveDelay) => setTimeout(resolveDelay, retryDelay));
+      }
+    } catch (error) {
+      lastError = error;
+      if (attempt < 5) await new Promise((resolveDelay) => setTimeout(resolveDelay, attempt * 1_000));
+    }
+  }
+  throw new Error(`${label} returned ${lastStatus || lastError?.message || "a network error"}`);
+}
+
+function createListUrl(page) {
+  const url = new URL(WORKS_LIST_URL);
+  url.searchParams.set("blogId", BLOG_ID);
+  url.searchParams.set("viewdate", "");
+  url.searchParams.set("currentPage", String(page));
+  url.searchParams.set("categoryNo", String(WORKS_CATEGORY_NO));
+  url.searchParams.set("parentCategoryNo", String(WORKS_CATEGORY_NO));
+  url.searchParams.set("countPerPage", String(LIST_PAGE_SIZE));
+  return url;
 }
 
 function escapeXml(value) {
@@ -148,7 +210,7 @@ function createSitemap(posts) {
 }
 
 function createRss(posts) {
-  const items = posts.map((post) => `    <item>\n      <title>${escapeXml(post.title)}</title>\n      <link>${SITE_URL}/works/${post.id}</link>\n      <guid>${SITE_URL}/works/${post.id}</guid>\n      <pubDate>${new Date(`${post.dateIso}T12:00:00+09:00`).toUTCString()}</pubDate>\n      <description>${escapeXml(post.excerpt)}</description>\n    </item>`).join("\n");
+  const items = posts.slice(0, RSS_ITEMS_LIMIT).map((post) => `    <item>\n      <title>${escapeXml(post.title)}</title>\n      <link>${SITE_URL}/works/${post.id}</link>\n      <guid>${SITE_URL}/works/${post.id}</guid>\n      <pubDate>${new Date(`${post.dateIso}T12:00:00+09:00`).toUTCString()}</pubDate>\n      <description>${escapeXml(post.excerpt)}</description>\n    </item>`).join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0">\n  <channel>\n    <title>꼼꼼욕실 시공 사례</title>\n    <link>${SITE_URL}/works</link>\n    <description>서울·인천·경기 욕실 부분시공 실제 사례</description>\n    <language>ko-KR</language>\n${items}\n  </channel>\n</rss>\n`;
 }
 
@@ -169,27 +231,45 @@ async function writeIfChanged(path, contents) {
   return true;
 }
 
-const requestHeaders = { "User-Agent": "GGomGgomBathBuildSync/2.0" };
-const [rssResponse, categoryResponse] = await Promise.all([
-  fetch(RSS_URL, { headers: requestHeaders }),
-  fetch(WORKS_CATEGORY_URL, { headers: requestHeaders }),
-]);
-if (!rssResponse.ok) throw new Error(`Naver RSS returned ${rssResponse.status}`);
-if (!categoryResponse.ok) throw new Error(`Naver category page returned ${categoryResponse.status}`);
+const requestHeaders = {
+  "User-Agent": "Mozilla/5.0 (compatible; GgomGgomBathSync/3.0; +https://ggomggombath.com)",
+  Referer: WORKS_CATEGORY_URL,
+};
+let previousPosts = [];
+try {
+  previousPosts = JSON.parse(await readFile(postsPath, "utf8"));
+} catch {
+  // The first sync starts without a local cache.
+}
+const previousById = new Map(previousPosts.map((post) => [post.id, post]));
 
-const [rssXml, categoryHtml] = await Promise.all([rssResponse.text(), categoryResponse.text()]);
-const posts = parsePosts(rssXml);
-if (posts.length < POSTS_LIMIT || posts.some((post) => !post.id)) throw new Error("Naver RSS did not contain enough valid construction posts");
-
-const enrichedPosts = await Promise.all(posts.map(async (post) => {
-  const response = await fetch(`https://m.blog.naver.com/refresh-bath/${post.id}`, { headers: requestHeaders });
-  if (!response.ok) return post;
-  const detail = parsePostContent(await response.text(), post.title);
-  return { ...post, ...detail, image: detail.images[0] ?? post.image };
+const firstPage = parsePostListResponse(await fetchText(createListUrl(1), "Naver construction list"));
+const pageCount = Math.ceil(firstPage.totalCount / LIST_PAGE_SIZE);
+const remainingPages = await Promise.all(Array.from({ length: pageCount - 1 }, async (_, index) => {
+  const page = index + 2;
+  return parsePostListResponse(await fetchText(createListUrl(page), `Naver construction list page ${page}`)).postList;
 }));
+const records = [...firstPage.postList, ...remainingPages.flat()];
+const uniqueRecords = records.filter((record, index) => records.findIndex((candidate) => candidate.logNo === record.logNo) === index);
+if (uniqueRecords.length !== firstPage.totalCount || uniqueRecords.some((record) => !record.logNo)) {
+  throw new Error(`Naver construction list expected ${firstPage.totalCount} posts but returned ${uniqueRecords.length}`);
+}
+
+let downloadedDetails = 0;
+const posts = uniqueRecords.map((record) => createPost(record, previousById.get(record.logNo)));
+const enrichedPosts = await mapWithConcurrency(posts, DETAIL_CONCURRENCY, async (post) => {
+  if (post.content.length >= 3 && post.images.length >= 1) return post;
+
+  const html = await fetchText(`https://m.blog.naver.com/${BLOG_ID}/${post.id}`, `Naver post ${post.id}`);
+  const detail = parsePostContent(html, post.title);
+  if (detail.content.length < 3 || detail.images.length < 1) throw new Error(`Naver post ${post.id} did not contain usable construction content`);
+  downloadedDetails += 1;
+  const excerpt = summarizeContent(detail.content, post.title);
+  return { ...post, ...detail, excerpt, image: detail.images[0], issues: extractIssues(post.title, excerpt) };
+});
 
 const stats = {
-  completedWorks: parseCompletedWorks(categoryHtml),
+  completedWorks: firstPage.totalCount,
   sourceCategory: WORKS_CATEGORY,
   sourceUrl: WORKS_CATEGORY_URL,
 };
@@ -201,4 +281,5 @@ const changes = await Promise.all([
   writeIfChanged(siteRssPath, createRss(enrichedPosts)),
   writeIfChanged(llmsPath, createLlms(enrichedPosts)),
 ]);
-console.log(changes.some(Boolean) ? "Latest blog and discovery data updated." : "Latest blog and discovery data is already current.");
+const message = changes.some(Boolean) ? "All construction posts and discovery data updated." : "All construction posts and discovery data are already current.";
+console.log(`${message} ${enrichedPosts.length} posts available; ${downloadedDetails} detail pages downloaded.`);

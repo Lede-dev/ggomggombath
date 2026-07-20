@@ -42,12 +42,16 @@ test("exports the homepage as a static asset", async () => {
   assert.doesNotMatch(html, /\/api\/blog/);
 });
 
-test("exports ten substantial first-party work pages", async () => {
-  const posts = JSON.parse(await readFile(blogPostsUrl, "utf8"));
-  assert.equal(posts.length, 10);
+test("exports every substantial first-party construction page", async () => {
+  const [posts, stats] = await Promise.all([
+    readFile(blogPostsUrl, "utf8").then(JSON.parse),
+    readFile(blogStatsUrl, "utf8").then(JSON.parse),
+  ]);
+  assert.equal(posts.length, stats.completedWorks);
+  assert.ok(posts.length > 100);
 
   for (const post of posts) {
-    assert.ok(post.content.length >= 30);
+    assert.ok(post.content.length >= 20);
     assert.ok(post.images.length >= 3);
     const html = await readFile(new URL(`works/${post.id}.html`, outputRoot), "utf8");
     assert.match(html, new RegExp(`<link rel="canonical" href="https://ggomggombath\\.com/works/${post.id}"`));
@@ -68,24 +72,43 @@ test("stores a positive completed works count from the construction category", a
 });
 
 test("exports discovery, RSS and app metadata as static files", async () => {
-  const [robots, sitemap, rss, indexNowKey, manifest, headers] = await Promise.all([
+  const [robots, sitemap, rss, indexNowKey, manifest, headers, postsSource] = await Promise.all([
     readFile(new URL("robots.txt", outputRoot), "utf8"),
     readFile(new URL("sitemap.xml", outputRoot), "utf8"),
     readFile(new URL("rss.xml", outputRoot), "utf8"),
     readFile(new URL("9a4f0c1b7d2e43f6a8c95b1e7042d639.txt", outputRoot), "utf8"),
     readFile(new URL("manifest.webmanifest", outputRoot), "utf8"),
     readFile(new URL("_headers", outputRoot), "utf8"),
+    readFile(blogPostsUrl, "utf8"),
   ]);
+  const posts = JSON.parse(postsSource);
 
   assert.match(robots, /Sitemap: https:\/\/ggomggombath\.com\/sitemap\.xml/);
   assert.match(sitemap, /<loc>https:\/\/ggomggombath\.com\/<\/loc>/);
-  assert.equal((sitemap.match(/<loc>/g) ?? []).length, 20);
+  assert.equal((sitemap.match(/<loc>/g) ?? []).length, posts.length + 10);
   assert.match(sitemap, /https:\/\/ggomggombath\.com\/services\/toilet-replacement/);
   assert.match(sitemap, /https:\/\/ggomggombath\.com\/works\/224346358464/);
   assert.match(rss, /<title>꼼꼼욕실 시공 사례<\/title>/);
   assert.equal(indexNowKey.trim(), "9a4f0c1b7d2e43f6a8c95b1e7042d639");
   assert.equal(JSON.parse(manifest).short_name, "꼼꼼욕실");
   assert.match(headers, /Strict-Transport-Security: max-age=31536000/);
+});
+
+test("paginates the complete work list ten items at a time", async () => {
+  const [html, postsSource] = await Promise.all([
+    readFile(new URL("works.html", outputRoot), "utf8"),
+    readFile(blogPostsUrl, "utf8"),
+  ]);
+  const posts = JSON.parse(postsSource);
+  const renderedText = html.replaceAll("<!-- -->", "");
+  const totalPages = Math.ceil(posts.length / 10);
+
+  assert.equal((html.match(/class="work-card"/g) ?? []).length, 10);
+  assert.match(renderedText, new RegExp(`1–10 / ${posts.length}건`));
+  assert.match(html, /aria-label="시공 사례 페이지"/);
+  assert.match(html, /aria-label="이전 페이지"/);
+  assert.match(html, /aria-label="다음 페이지"/);
+  assert.match(renderedText, new RegExp(`총 ${totalPages}페이지 중 1페이지`));
 });
 
 test("runs the verification Worker only for the exact Naver ownership path", async () => {

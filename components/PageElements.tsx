@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PhoneContact } from "@/components/PhoneContact";
 import { StaticImage } from "@/components/StaticImage";
-import { brand, services, type CasePost } from "@/data/site";
+import { brand, services, type WorkCardPost } from "@/data/site";
 
 export function Breadcrumbs({ items }: { items: Array<{ label: string; href?: string }> }) {
   return (
@@ -40,7 +40,7 @@ export function ServiceCards({ compact = false }: { compact?: boolean }) {
   );
 }
 
-export function WorkCards({ posts, limit }: { posts: CasePost[]; limit?: number }) {
+export function WorkCards({ posts, limit }: { posts: WorkCardPost[]; limit?: number }) {
   const visiblePosts = typeof limit === "number" ? posts.slice(0, limit) : posts;
   return (
     <div className="work-card-grid">
