@@ -27,7 +27,7 @@ body {
 }
 a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; }
-.phone-icon { width: 20px; height: auto; flex: none; }
+.phone-icon { width: 20px; height: 20px; flex: none; color: var(--accent); }
 button, summary { font: inherit; }
 ::selection { background: var(--blue); color: white; }
 
