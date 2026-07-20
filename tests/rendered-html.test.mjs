@@ -5,14 +5,32 @@ import test from "node:test";
 const outputRoot = new URL("../dist/client/", import.meta.url);
 const assetsConfigUrl = new URL("../wrangler.assets.jsonc", import.meta.url);
 const globalStylesUrl = new URL("../app/globals.css", import.meta.url);
+const blogStatsUrl = new URL("../data/blog-stats.json", import.meta.url);
 
 test("exports the homepage as a static asset", async () => {
-  const html = await readFile(new URL("index.html", outputRoot), "utf8");
+  const [html, statsSource] = await Promise.all([
+    readFile(new URL("index.html", outputRoot), "utf8"),
+    readFile(blogStatsUrl, "utf8"),
+  ]);
+  const stats = JSON.parse(statsSource);
+  const renderedText = html.replaceAll("<!-- -->", "");
 
   assert.match(html, /<title>꼼꼼욕실/);
   assert.match(html, /010-2939-2537/);
   assert.match(html, /LATEST WORK/);
+  assert.match(renderedText, /COMPLETED WORKS/);
+  assert.match(renderedText, new RegExp(`${stats.completedWorks}<small>건<\\/small>`));
+  assert.match(renderedText, /네이버 블로그 ‘시공후기’ 기록 기준/);
   assert.doesNotMatch(html, /\/api\/blog/);
+});
+
+test("stores a positive completed works count from the construction category", async () => {
+  const stats = JSON.parse(await readFile(blogStatsUrl, "utf8"));
+
+  assert.equal(stats.sourceCategory, "시공후기");
+  assert.match(stats.sourceUrl, /categoryNo=9/);
+  assert.ok(Number.isInteger(stats.completedWorks));
+  assert.ok(stats.completedWorks > 0);
 });
 
 test("exports discovery and app metadata as static files", async () => {

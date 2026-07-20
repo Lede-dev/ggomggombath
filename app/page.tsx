@@ -2,9 +2,11 @@ import { HeroLatestPost } from "@/components/HeroLatestPost";
 import { LatestPosts } from "@/components/LatestPosts";
 import { PhoneIcon } from "@/components/PhoneIcon";
 import blogPostsData from "@/data/blog-posts.json";
-import { brand, faqs, processSteps, reasons, services, type CasePost } from "@/data/site";
+import blogStatsData from "@/data/blog-stats.json";
+import { brand, faqs, processSteps, reasons, services, type BlogStats, type CasePost } from "@/data/site";
 
 const blogPosts = blogPostsData as CasePost[];
+const blogStats = blogStatsData as BlogStats;
 const latestPost = blogPosts.find((post) => post.image) ?? blogPosts[0];
 
 const organizationSchema = {
@@ -147,8 +149,15 @@ export default function Home() {
           <div className="section-heading-row">
             <h2 id="cases-title">말보다 확실한<br />실제 시공 기록</h2>
             <div>
+              <div className="completed-work-count">
+                <strong>{blogStats.completedWorks.toLocaleString("ko-KR")}<small>건</small></strong>
+                <div>
+                  <span>COMPLETED WORKS</span>
+                  <p>네이버 블로그 ‘{blogStats.sourceCategory}’ 기록 기준</p>
+                </div>
+              </div>
               <p>네이버 블로그의 최신 시공 후기를 자동으로 불러옵니다. 현장별 제품과 시공 과정을 직접 확인해 보세요.</p>
-              <a className="underlined-link" href={brand.naverBlog} target="_blank" rel="noreferrer">시공 후기 전체보기 ↗</a>
+              <a className="underlined-link" href={blogStats.sourceUrl} target="_blank" rel="noreferrer">시공 후기 전체보기 ↗</a>
             </div>
           </div>
           <LatestPosts posts={blogPosts} />

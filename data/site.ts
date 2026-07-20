@@ -14,6 +14,12 @@ export type CasePost = {
   excerpt: string;
 };
 
+export type BlogStats = {
+  completedWorks: number;
+  sourceCategory: string;
+  sourceUrl: string;
+};
+
 export const brand = {
   name: "꼼꼼욕실",
   englishName: "GGOMGGOM BATH",
