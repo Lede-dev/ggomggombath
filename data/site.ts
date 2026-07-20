@@ -21,6 +21,8 @@ export const brand = {
   description:
     "서울·인천·경기 욕실 부분시공 전문. 변기, 세면기, 수전, 욕실장과 욕실용품을 합리적인 비용으로 깔끔하게 교체합니다.",
   serviceArea: "서울 전 지역 · 인천 · 경기",
+  phone: "010-2939-2537",
+  phoneHref: "tel:+821029392537",
   naverBlog: "https://blog.naver.com/refresh-bath",
   naverRss: "https://rss.blog.naver.com/refresh-bath.xml",
   youtube: "https://www.youtube.com/@%EA%BC%BC%EA%BC%BC%EC%9A%95%EC%8B%A4",
@@ -124,4 +126,3 @@ export const fallbackPosts: CasePost[] = [
     excerpt: "욕실 상태를 확인한 뒤 CC-766 투피스 변기를 안정적으로 설치한 사례입니다.",
   },
 ];
-
