@@ -126,4 +126,7 @@ test("keeps the favicon legible in dark browser themes", async () => {
   assert.match(favicon, /@media \(prefers-color-scheme:\s*dark\)/);
   assert.match(favicon, /\.frame\s*{\s*fill:\s*#093B5C;\s*stroke:\s*#F7F3ED;/);
   assert.match(favicon, /\.fixture\s*{\s*fill:\s*#093B5C;\s*stroke:\s*#F7F3ED;/);
+
+  const html = await readFile(new URL("index.html", outputRoot), "utf8");
+  assert.match(html, /favicon\.svg\?v=20260721-dark/);
 });

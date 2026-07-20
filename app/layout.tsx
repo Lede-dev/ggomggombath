@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
+const faviconUrl = "/favicon.svg?v=20260721-dark";
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://ggomggombath.com"),
   title: {
@@ -24,7 +26,7 @@ export const metadata: Metadata = {
     description: "서울·인천·경기 욕실 부분시공 전문",
     images: ["/og.png"],
   },
-  icons: { icon: "/favicon.svg", shortcut: "/favicon.svg", apple: "/logo.svg" },
+  icons: { icon: faviconUrl, shortcut: faviconUrl, apple: "/logo.svg" },
 };
 
 export const viewport: Viewport = {
