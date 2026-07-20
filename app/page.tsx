@@ -56,7 +56,7 @@ export default function Home() {
             <a href="#process">진행과정</a>
             <a href="#faq">자주 묻는 질문</a>
             <a href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 ↗</a>
-            <a href={brand.phoneHref}><span aria-hidden="true">☎️</span> {brand.phone}</a>
+            <span className="mobile-phone"><img className="phone-icon" src="/phone-icon.png" alt="" width="75" height="64" /> {brand.phone}</span>
           </nav>
         </details>
       </header>
@@ -68,7 +68,7 @@ export default function Home() {
             <p className="eyebrow"><span>욕실 부분시공 전문</span> {brand.serviceArea}</p>
             <h1 id="hero-title">바꿔야 할 곳만,<br /><em>꼼꼼하게.</em></h1>
             <p className="hero-description">전체 공사가 부담스러울 때, 필요한 부분만 정확하게.<br />매일 쓰는 욕실의 불편을 깔끔한 교체 시공으로 해결합니다.</p>
-            <p className="hero-phone"><span aria-hidden="true">☎️</span><a href={brand.phoneHref} aria-label={`전화 ${brand.phone}`}>{brand.phone}</a></p>
+            <p className="hero-phone"><img className="phone-icon" src="/phone-icon.png" alt="" width="75" height="64" /><strong>{brand.phone}</strong></p>
             <div className="hero-actions">
               <a className="button button-primary" href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 보기 <span aria-hidden="true">↗</span></a>
               <a className="button button-ghost" href="#cases">실제 시공 보기</a>
@@ -133,7 +133,7 @@ export default function Home() {
           <div className="service-note">
             <span>시공 가능 지역</span>
             <strong>{brand.serviceArea}</strong>
-            <a href={brand.phoneHref}><span aria-hidden="true">☎️</span> {brand.phone} ↗</a>
+            <div className="service-phone"><img className="phone-icon" src="/phone-icon.png" alt="" width="75" height="64" /> {brand.phone}</div>
           </div>
         </section>
 
@@ -189,7 +189,7 @@ export default function Home() {
           <p>YOUR BATHROOM, REFRESHED WITH DETAIL.</p>
           <h2 id="cta-title">사진 한 장에서 시작하는<br /><span>꼼꼼한 욕실 교체</span></h2>
           <div className="final-cta-actions">
-            <a className="button button-light" href={brand.phoneHref}><span aria-hidden="true">☎️</span> {brand.phone}</a>
+            <div className="final-phone"><img className="phone-icon" src="/phone-icon.png" alt="" width="75" height="64" /> {brand.phone}</div>
             <a className="button button-outline-light" href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 <span aria-hidden="true">↗</span></a>
           </div>
           <img className="cta-watermark" src="/logo.svg" alt="" width="420" height="250" />
@@ -203,7 +203,11 @@ export default function Home() {
         </div>
         <div className="footer-info">
           <p>욕실 부분시공 전문 · {brand.serviceArea}</p>
-          <p>상담 및 시공 문의 <a href={brand.phoneHref}>{brand.phone}</a></p>
+          <p className="footer-contact">
+            <span>상담 및 시공 문의</span>
+            <strong><img className="phone-icon" src="/phone-icon.png" alt="" width="75" height="64" /> {brand.phone}</strong>
+            <a href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 ↗</a>
+          </p>
         </div>
         <div className="social-links" aria-label="공식 채널">
           <a href={brand.naverBlog} target="_blank" rel="noreferrer">NAVER BLOG ↗</a>
