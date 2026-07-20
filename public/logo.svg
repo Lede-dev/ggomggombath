@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 250" role="img" aria-labelledby="title desc">
+  <title id="title">꼼꼼욕실 로고</title>
+  <desc id="desc">타원 안에 반짝이는 깨끗한 세면대와 수전이 있는 파란색 심볼</desc>
+  <g fill="#fff" stroke="#0B4F7B" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="220" cy="125" rx="196" ry="108"/>
+    <path d="M102 131h238c10 0 14 7 9 15l-7 12H100l-7-12c-5-8-1-15 9-15Z"/>
+    <path d="M109 158c7 24 26 37 64 38l-18 39c34 8 81 8 117 0l-12-39h49c16-8 26-21 31-38"/>
+    <path d="M207 86c3-15 15-25 31-25h39c18 0 31 13 31 31v39"/>
+    <path d="M198 100c4-18 17-29 36-29s32 11 36 29h-72Z"/>
+    <path d="M140 65l10 14 17 7-17 7-10 14-10-14-17-7 17-7 10-14Z"/>
+  </g>
+  <g fill="none" stroke="#0B4F7B" stroke-width="9" stroke-linecap="round">
+    <path d="M220 112v8"/>
+    <path d="M249 112v8"/>
+  </g>
+</svg>
+
