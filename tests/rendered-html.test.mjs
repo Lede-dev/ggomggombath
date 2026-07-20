@@ -83,7 +83,7 @@ test("aligns the recent-work heading and completed-work metric", async () => {
   assert.match(styles, /\.completed-work-count\s*{[^}]*align-items:\s*center;[^}]*padding:\s*18px 0 18px 18px;/);
 });
 
-test("uses a clean hero image with right-aligned labels", async () => {
+test("uses a clean hero image with diagonally balanced labels", async () => {
   const [html, styles] = await Promise.all([
     readFile(new URL("index.html", outputRoot), "utf8"),
     readFile(globalStylesUrl, "utf8"),
@@ -92,7 +92,8 @@ test("uses a clean hero image with right-aligned labels", async () => {
   assert.doesNotMatch(html, /class="hero-seal"/);
   assert.doesNotMatch(styles, /\.hero-seal/);
   assert.match(styles, /\.hero-photo-frame\s*{[^}]*inset:\s*20px 4% 38px;/);
-  assert.match(styles, /\.photo-label\s*{[^}]*right:\s*var\(--hero-label-edge\)/);
+  assert.match(styles, /\.photo-label\s*{[^}]*left:\s*var\(--hero-label-edge\)/);
+  assert.doesNotMatch(styles, /\.photo-label\s*{[^}]*right:/);
   assert.match(styles, /\.service-ticket\s*{[^}]*right:\s*var\(--hero-label-edge\)/);
 });
 

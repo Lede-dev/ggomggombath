@@ -96,7 +96,7 @@ button, summary { font: inherit; }
 .hero-photo-frame img { width: 100%; height: 100%; object-fit: cover; }
 .hero-latest-link { position: relative; display: block; width: 100%; height: 100%; overflow: hidden; }
 .hero-latest-link::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 58%, rgba(6,44,69,.18)); pointer-events: none; }
-.photo-label { position: absolute; z-index: 4; top: 36px; right: var(--hero-label-edge); padding: 11px 14px; background: rgba(251,250,247,.94); border: 1px solid rgba(9,59,92,.12); color: var(--navy); font-size: 9px; font-weight: 800; letter-spacing: .13em; box-shadow: 0 10px 24px rgba(9,59,92,.1); backdrop-filter: blur(8px); }
+.photo-label { position: absolute; z-index: 4; top: 36px; left: var(--hero-label-edge); padding: 11px 14px; background: rgba(251,250,247,.94); border: 1px solid rgba(9,59,92,.12); color: var(--navy); font-size: 9px; font-weight: 800; letter-spacing: .13em; box-shadow: 0 10px 24px rgba(9,59,92,.1); backdrop-filter: blur(8px); }
 .service-ticket { position: absolute; z-index: 5; right: var(--hero-label-edge); bottom: 0; width: 280px; padding: 21px 22px; background: var(--accent); color: white; box-shadow: 0 16px 34px rgba(130,57,31,.16); }
 .service-ticket span { display: block; margin-bottom: 8px; font-size: 8px; letter-spacing: .18em; }
 .service-ticket strong { font-size: 14px; letter-spacing: -.02em; }
