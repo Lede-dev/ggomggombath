@@ -38,13 +38,13 @@ export async function GET() {
   try {
     const response = await fetch(RSS_URL, {
       headers: { "User-Agent": "GGomGgomBathWebsite/1.0" },
-      next: { revalidate: 3600 },
+      next: { revalidate: 900 },
     });
 
     if (!response.ok) throw new Error(`Naver RSS returned ${response.status}`);
 
     const xml = await response.text();
-    const items = (xml.match(/<item>[\s\S]*?<\/item>/gi) ?? []).slice(0, 6).map((block) => {
+    const items = (xml.match(/<item>[\s\S]*?<\/item>/gi) ?? []).slice(0, 3).map((block) => {
       const description = readCdata(block, "description");
       const image = description.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1] ?? "";
       const excerpt = stripMarkup(description);
@@ -61,10 +61,9 @@ export async function GET() {
 
     return NextResponse.json(
       { items, source: RSS_URL, updatedAt: new Date().toISOString() },
-      { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } },
+      { headers: { "Cache-Control": "public, s-maxage=900, stale-while-revalidate=86400" } },
     );
   } catch {
     return NextResponse.json({ items: [] }, { status: 502 });
   }
 }
-

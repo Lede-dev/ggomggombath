@@ -1,8 +1,7 @@
-# vinext-starter
+# 꼼꼼욕실 홈페이지
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+욕실 부분시공 전문 브랜드 꼼꼼욕실의 공식 홈페이지입니다. vinext와 Cloudflare
+Workers를 사용하며 네이버 블로그 RSS에서 최신 시공 후기 3개를 자동으로 불러옵니다.
 
 ## Prerequisites
 
@@ -14,9 +13,11 @@ Drizzle support.
 npm install
 npm run dev
 npm run build
+npm run deploy:cloudflare
 ```
 
-This starter does not use `wrangler.jsonc`.
+Cloudflare Workers 배포 시 `npm run build`가 생성한
+`dist/server/wrangler.json`을 사용합니다.
 
 ## Included Shape
 
@@ -89,6 +90,7 @@ actions tied to the current ChatGPT user. Leave public content anonymous.
 
 - `npm run dev`: start local development
 - `npm run build`: verify the vinext build output
+- `npm run deploy:cloudflare`: build and deploy to Cloudflare Workers
 - `npm test`: build the starter and verify its rendered loading skeleton
 - `npm run db:generate`: generate Drizzle migrations after schema changes
 
