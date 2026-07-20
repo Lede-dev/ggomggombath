@@ -20,6 +20,24 @@ export type BlogStats = {
   sourceUrl: string;
 };
 
+export function getNaverImageVariants(source: string) {
+  const withType = (type: "s3" | "w2" | "w1") => {
+    try {
+      const url = new URL(source);
+      if (url.hostname.endsWith("pstatic.net")) url.searchParams.set("type", type);
+      return url.toString();
+    } catch {
+      return source;
+    }
+  };
+
+  return {
+    thumbnail: withType("s3"),
+    medium: withType("w2"),
+    large: withType("w1"),
+  } as const;
+}
+
 export const brand = {
   name: "꼼꼼욕실",
   englishName: "GGOMGGOM BATH",

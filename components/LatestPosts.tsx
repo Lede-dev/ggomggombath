@@ -1,14 +1,27 @@
-import type { CasePost } from "@/data/site";
+import { StaticImage } from "@/components/StaticImage";
+import { getNaverImageVariants, type CasePost } from "@/data/site";
 
 export function LatestPosts({ posts }: { posts: CasePost[] }) {
   return (
     <div className="post-grid">
-      {posts.map((post, index) => (
-        <article className={`post-card post-card-${index + 1}`} key={post.link}>
+      {posts.map((post, index) => {
+        const image = getNaverImageVariants(post.image);
+
+        return <article className={`post-card post-card-${index + 1}`} key={post.link}>
           <a href={post.link} target="_blank" rel="noreferrer" aria-label={`${post.title} 새 창에서 읽기`}>
             <div className="post-image-wrap">
               {/* RSS에 포함된 꼼꼼욕실 자체 시공 이미지입니다. */}
-              <img className="post-image" src={post.image} alt="꼼꼼욕실 실제 욕실 부분시공 현장" referrerPolicy="no-referrer" />
+              <StaticImage
+                className="post-image"
+                src={image.thumbnail}
+                srcSet={`${image.thumbnail} 365w, ${image.medium} 743w`}
+                sizes="(max-width: 720px) calc(100vw - 40px), (max-width: 1100px) 50vw, 380px"
+                alt="꼼꼼욕실 실제 욕실 부분시공 현장"
+                width="365"
+                height="365"
+                loading="lazy"
+                referrerPolicy="no-referrer"
+              />
               <span className="post-index">0{index + 1}</span>
             </div>
             <div className="post-copy">
@@ -21,8 +34,8 @@ export function LatestPosts({ posts }: { posts: CasePost[] }) {
               <span className="text-link">시공 후기 보기 <span aria-hidden="true">↗</span></span>
             </div>
           </a>
-        </article>
-      ))}
+        </article>;
+      })}
     </div>
   );
 }

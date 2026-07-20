@@ -95,3 +95,13 @@ test("uses a clean hero image with right-aligned labels", async () => {
   assert.match(styles, /\.photo-label\s*{[^}]*right:\s*var\(--hero-label-edge\)/);
   assert.match(styles, /\.service-ticket\s*{[^}]*right:\s*var\(--hero-label-edge\)/);
 });
+
+test("exports responsive images without a runtime optimizer", async () => {
+  const html = await readFile(new URL("index.html", outputRoot), "utf8");
+
+  assert.match(html, /srcset="[^"]+type=s3[^"]+365w,[^"]+type=w2[^"]+743w/i);
+  assert.match(html, /fetchpriority="high"/i);
+  assert.match(html, /loading="lazy"/);
+  assert.match(html, /decoding="async"/);
+  assert.doesNotMatch(html, /\/_vinext\/image/);
+});

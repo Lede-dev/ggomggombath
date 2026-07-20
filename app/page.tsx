@@ -2,6 +2,7 @@ import { HeroLatestPost } from "@/components/HeroLatestPost";
 import { LatestPosts } from "@/components/LatestPosts";
 import { PhoneIcon } from "@/components/PhoneIcon";
 import { SectionLink } from "@/components/SectionLink";
+import { StaticImage } from "@/components/StaticImage";
 import blogPostsData from "@/data/blog-posts.json";
 import blogStatsData from "@/data/blog-stats.json";
 import { brand, faqs, processSteps, reasons, services, type BlogStats, type CasePost } from "@/data/site";
@@ -47,7 +48,7 @@ export default function Home() {
 
       <header className="site-header">
         <SectionLink className="brand-lockup" targetId="top" aria-label="꼼꼼욕실 홈">
-          <img src="/logo.svg" alt="" width="94" height="56" />
+          <StaticImage src="/logo.svg" alt="" width="94" height="56" loading="eager" />
           <span>
             <strong>{brand.name}</strong>
             <small>{brand.englishName}</small>
@@ -207,13 +208,13 @@ export default function Home() {
             <div className="final-phone"><PhoneIcon /> {brand.phone}</div>
             <a className="button button-outline-light" href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 <span aria-hidden="true">↗</span></a>
           </div>
-          <img className="cta-watermark" src="/logo.svg" alt="" width="420" height="250" />
+          <StaticImage className="cta-watermark" src="/logo.svg" alt="" width="420" height="250" loading="lazy" />
         </section>
       </main>
 
       <footer className="site-footer">
         <div className="footer-brand">
-          <img src="/logo.svg" alt="꼼꼼욕실" width="110" height="66" />
+          <StaticImage src="/logo.svg" alt="꼼꼼욕실" width="110" height="66" loading="lazy" />
           <div><strong>{brand.name}</strong><span>{brand.englishName}</span></div>
         </div>
         <div className="social-links" aria-label="공식 채널">
