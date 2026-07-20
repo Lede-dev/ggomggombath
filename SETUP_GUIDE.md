@@ -14,8 +14,9 @@
 - 현재 RSS: `https://rss.blog.naver.com/refresh-bath.xml`
 - `npm run sync:blog`가 최신 글 제목, 날짜, 설명, 대표 이미지를 정적 JSON으로 저장합니다.
 - GitHub Actions가 매시간 RSS를 확인하고 내용이 바뀐 경우에만 `master`에 커밋합니다.
-- Cloudflare Workers Builds를 `master`에 연결하면 변경된 글이 자동으로 정적 재배포됩니다.
+- Cloudflare Workers Builds를 `master`에 연결하면 변경된 글이 자동으로 Assets-only 정적 재배포됩니다.
 - 방문 브라우저에서는 RSS API를 호출하지 않으므로 Worker 요청 한도를 사용하지 않습니다.
+- 배포에는 `wrangler.assets.jsonc`를 사용하며 Worker 진입점은 포함하지 않습니다.
 
 ## 3. 구글 검색 노출
 

@@ -25,7 +25,7 @@ if (exitCode === 0) process.exit(0);
 
 const requiredOutputs = [
   resolve(rootDir, "dist/client/index.html"),
-  resolve(rootDir, "dist/server/wrangler.json"),
+  resolve(rootDir, "dist/client/404.html"),
 ];
 const outputsAreFresh = await Promise.all(
   requiredOutputs.map(async (path) => {
