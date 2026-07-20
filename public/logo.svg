@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="logo-title logo-desc">
   <title id="logo-title">꼼꼼욕실 로고</title>
-  <desc id="logo-desc">원형 프레임 안에 세면대와 수전, 주황색 반짝임이 있는 심볼</desc>
+  <desc id="logo-desc">원형 프레임 안에 세면대와 수전, 반짝임이 있는 짙은 파란색 심볼</desc>
   <circle cx="128" cy="128" r="108" fill="#fff" stroke="#093B5C" stroke-width="8"/>
 
   <path
     d="M182 117V94c0-18-14-32-32-32h-4c-17 0-32 10-38 26l-3 9h37c13 0 24 10 24 23"
     fill="none"
     stroke="#0B4F7B"
-    stroke-width="6"
+    stroke-width="8"
     stroke-linecap="round"
     stroke-linejoin="round"
   />

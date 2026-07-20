@@ -48,7 +48,7 @@ export function getNaverImageVariants(source: string) {
 export const brand = {
   name: "꼼꼼욕실",
   englishName: "GGOMGGOM BATH",
-  logoPath: "/logo.svg?v=20260721-navy-v2",
+  logoPath: "/logo.svg?v=20260721-navy-v3",
   tagline: "바꿔야 할 곳만, 꼼꼼하게.",
   description:
     "서울·인천·경기 욕실 부분시공 전문. 변기, 세면기, 수전, 욕실장과 욕실용품을 합리적인 비용으로 깔끔하게 교체합니다.",

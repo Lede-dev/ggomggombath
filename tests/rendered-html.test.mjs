@@ -26,6 +26,8 @@ test("exports the homepage as a static asset", async () => {
   assert.match(renderedText, /COMPLETED WORKS/);
   assert.match(renderedText, new RegExp(`${stats.completedWorks}<small>건<\\/small>`));
   assert.match(renderedText, /네이버 블로그 ‘시공후기’ 기록 기준/);
+  assert.match(renderedText, /최근에 마친 욕실 시공 사례를 소개합니다/);
+  assert.doesNotMatch(renderedText, /자동으로 불러옵니다/);
   for (const path of ["about", "review", "process", "faq"]) {
     assert.match(html, new RegExp(`href="/${path}"`));
     assert.ok(await readFile(new URL(`${path}.html`, outputRoot), "utf8"));
@@ -91,6 +93,14 @@ test("aligns the recent-work heading and completed-work metric", async () => {
   assert.match(styles, /\.completed-work-count\s*{[^}]*align-items:\s*center;[^}]*padding:\s*18px 0 18px 18px;/);
 });
 
+test("keeps the header brand compact and close to the left edge", async () => {
+  const styles = await readFile(globalStylesUrl, "utf8");
+
+  assert.match(styles, /\.site-header\s*{[^}]*padding:\s*0 clamp\(20px, 3vw, 48px\);/);
+  assert.match(styles, /\.brand-lockup\s*{[^}]*gap:\s*8px;/);
+  assert.match(styles, /\.brand-lockup img\s*{[^}]*width:\s*52px;[^}]*height:\s*52px;/);
+});
+
 test("uses a clean hero image with diagonally balanced labels", async () => {
   const [html, styles] = await Promise.all([
     readFile(new URL("index.html", outputRoot), "utf8"),
@@ -144,10 +154,10 @@ test("keeps the favicon legible in dark browser themes", async () => {
   assert.doesNotMatch(darkFavicon, /#E76F43/);
 
   const html = await readFile(new URL("index.html", outputRoot), "utf8");
-  assert.match(html, /favicon\.svg\?v=20260721-navy-v2/);
-  assert.match(html, /favicon-dark\.svg\?v=20260721-navy-v2/);
+  assert.match(html, /favicon\.svg\?v=20260721-navy-v3/);
+  assert.match(html, /favicon-dark\.svg\?v=20260721-navy-v3/);
   assert.match(html, /media="\(prefers-color-scheme: dark\)"/);
-  assert.match(html, /logo\.svg\?v=20260721-navy-v2/);
+  assert.match(html, /logo\.svg\?v=20260721-navy-v3/);
 });
 
 test("offers a direct call action on mobile", async () => {

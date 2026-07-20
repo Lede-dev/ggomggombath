@@ -43,7 +43,7 @@ export default function Home() {
 
       <header className="site-header">
         <SectionLink className="brand-lockup" targetId="top" path="/" aria-label="꼼꼼욕실 홈">
-          <StaticImage src={brand.logoPath} alt="" width="94" height="56" loading="eager" />
+          <StaticImage src={brand.logoPath} alt="" width="52" height="52" loading="eager" />
           <span>
             <strong>{brand.name}</strong>
             <small>{brand.englishName}</small>
@@ -148,7 +148,7 @@ export default function Home() {
                   <p>네이버 블로그 ‘{blogStats.sourceCategory}’ 기록 기준</p>
                 </div>
               </div>
-              <p>네이버 블로그의 최신 시공 후기를 자동으로 불러옵니다. 현장별 제품과 시공 과정을 직접 확인해 보세요.</p>
+              <p>최근에 마친 욕실 시공 사례를 소개합니다. 현장별 제품과 시공 과정을 사진으로 자세히 확인해 보세요.</p>
               <a className="underlined-link" href={blogStats.sourceUrl} target="_blank" rel="noreferrer">시공 후기 전체보기 ↗</a>
             </div>
           </div>
@@ -198,13 +198,13 @@ export default function Home() {
             <PhoneContact className="final-phone" />
             <a className="button button-outline-light" href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 <span aria-hidden="true">↗</span></a>
           </div>
-          <StaticImage className="cta-watermark" src={brand.logoPath} alt="" width="420" height="250" loading="lazy" />
+          <StaticImage className="cta-watermark" src={brand.logoPath} alt="" width="420" height="420" loading="lazy" />
         </section>
       </main>
 
       <footer className="site-footer">
         <div className="footer-brand">
-          <StaticImage src={brand.logoPath} alt="꼼꼼욕실" width="110" height="66" loading="lazy" />
+          <StaticImage src={brand.logoPath} alt="꼼꼼욕실" width="94" height="94" loading="lazy" />
           <div><strong>{brand.name}</strong><span>{brand.englishName}</span></div>
         </div>
         <div className="social-links" aria-label="공식 채널">

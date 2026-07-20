@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { brand } from "@/data/site";
 import "./globals.css";
 
-const faviconVersion = "20260721-navy-v2";
+const faviconVersion = "20260721-navy-v3";
 const faviconUrl = `/favicon.svg?v=${faviconVersion}`;
 const darkFaviconUrl = `/favicon-dark.svg?v=${faviconVersion}`;
 
