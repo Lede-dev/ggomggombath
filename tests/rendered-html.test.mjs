@@ -23,6 +23,7 @@ test("exports the homepage as a static asset", async () => {
   assert.match(html, /<title>꼼꼼욕실/);
   assert.match(html, /010-2939-2537/);
   assert.match(html, /LATEST WORK/);
+  assert.doesNotMatch(html, /<img[^>]*alt=""/);
   assert.match(renderedText, /꼼꼼욕실 시공 사례/);
   assert.match(renderedText, new RegExp(`${stats.completedWorks}<small>건<\\/small>`));
   assert.match(renderedText, /꼼꼼욕실 시공 사례/);
@@ -61,13 +62,16 @@ test("exports discovery and app metadata as static files", async () => {
   assert.match(headers, /Strict-Transport-Security: max-age=31536000/);
 });
 
-test("deploys only static assets without a Worker entry point", async () => {
+test("runs the verification Worker only for the exact Naver ownership path", async () => {
   const config = JSON.parse(await readFile(assetsConfigUrl, "utf8"));
 
   assert.equal(config.name, "ggomggombath");
+  assert.equal(config.main, "./worker/verification.ts");
   assert.equal(config.assets.directory, "./dist/client");
-  assert.equal("main" in config, false);
-  assert.equal("binding" in config.assets, false);
+  assert.equal(config.assets.binding, "ASSETS");
+  assert.deepEqual(config.assets.run_worker_first, [
+    "/navera86801b065c0a29fe7b53f2f61c70f17.html",
+  ]);
 });
 
 test("anchor navigation does not hold mouse-wheel scrolling", async () => {

@@ -43,7 +43,7 @@ export default function Home() {
 
       <header className="site-header">
         <SectionLink className="brand-lockup" targetId="top" path="/" aria-label="꼼꼼욕실 홈">
-          <StaticImage src={brand.logoPath} alt="" width="52" height="52" loading="eager" />
+          <StaticImage src={brand.logoPath} alt="꼼꼼욕실 로고" width="52" height="52" loading="eager" />
           <span>
             <strong>{brand.name}</strong>
             <small>{brand.englishName}</small>
@@ -199,7 +199,7 @@ export default function Home() {
             <PhoneContact className="final-phone" />
             <a className="button button-outline-light" href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 <span aria-hidden="true">↗</span></a>
           </div>
-          <StaticImage className="cta-watermark" src={brand.logoPath} alt="" width="420" height="420" loading="lazy" />
+          <StaticImage className="cta-watermark" src={brand.logoPath} alt="꼼꼼욕실 로고 워터마크" width="420" height="420" loading="lazy" />
         </section>
       </main>
 

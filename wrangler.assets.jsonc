@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "ggomggombath",
+  "main": "./worker/verification.ts",
   "compatibility_date": "2026-05-15",
   "workers_dev": false,
   "routes": [
@@ -14,6 +15,10 @@
     }
   ],
   "assets": {
-    "directory": "./dist/client"
+    "directory": "./dist/client",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/navera86801b065c0a29fe7b53f2f61c70f17.html"
+    ]
   }
 }
