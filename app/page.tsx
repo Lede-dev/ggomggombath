@@ -1,12 +1,19 @@
+import type { Metadata } from "next";
+import Link from "next/link";
 import { HeroLatestPost } from "@/components/HeroLatestPost";
 import { LatestPosts } from "@/components/LatestPosts";
+import { JsonLd } from "@/components/JsonLd";
 import { PhoneContact } from "@/components/PhoneContact";
-import { SectionLink } from "@/components/SectionLink";
-import { SectionRouteSync } from "@/components/SectionRouteSync";
+import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { StaticImage } from "@/components/StaticImage";
 import blogPostsData from "@/data/blog-posts.json";
 import blogStatsData from "@/data/blog-stats.json";
-import { brand, faqs, processSteps, reasons, sectionNavigation, services, type BlogStats, type CasePost } from "@/data/site";
+import { brand, faqs, processSteps, reasons, services, type BlogStats, type CasePost } from "@/data/site";
+
+export const metadata: Metadata = {
+  title: "서울·인천·경기 욕실 부분시공 전문",
+  alternates: { canonical: "/" },
+};
 
 const blogPosts = blogPostsData as CasePost[];
 const blogStats = blogStatsData as BlogStats;
@@ -14,12 +21,20 @@ const latestPost = blogPosts.find((post) => post.image) ?? blogPosts[0];
 const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "HomeAndConstructionBusiness",
+  "@id": "https://ggomggombath.com/#business",
   name: brand.name,
   description: brand.description,
   areaServed: ["서울특별시", "인천광역시", "경기도"],
   url: "https://ggomggombath.com",
   logo: new URL(brand.logoPath, "https://ggomggombath.com").toString(),
   telephone: brand.phone,
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: brand.phone,
+    contactType: "customer service",
+    areaServed: "KR",
+    availableLanguage: "Korean",
+  },
   sameAs: [brand.naverBlog, brand.youtube, brand.instagram],
   knowsAbout: ["변기 교체", "세면기 교체", "욕실 수전 교체", "욕실장 교체", "욕실 부분시공"],
 };
@@ -37,49 +52,21 @@ const faqSchema = {
 export default function Home() {
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
-      <SectionRouteSync />
-
-      <header className="site-header">
-        <SectionLink className="brand-lockup" targetId="top" path="/" aria-label="꼼꼼욕실 홈">
-          <StaticImage src={brand.logoPath} alt="꼼꼼욕실 로고" width="52" height="52" loading="eager" />
-          <span>
-            <strong>{brand.name}</strong>
-            <small>{brand.englishName}</small>
-          </span>
-        </SectionLink>
-        <nav className="desktop-nav" aria-label="주요 메뉴">
-          {sectionNavigation.map((item) => (
-            <SectionLink key={item.targetId} targetId={item.targetId} path={item.path}>{item.label}</SectionLink>
-          ))}
-        </nav>
-        <a className="header-blog-cta" href={brand.naverBlog} target="_blank" rel="noreferrer">
-          네이버 블로그 <span aria-hidden="true">↗</span>
-        </a>
-        <details className="mobile-menu">
-          <summary aria-label="메뉴 열기">MENU</summary>
-          <nav aria-label="모바일 메뉴">
-            {sectionNavigation.map((item) => (
-              <SectionLink key={item.targetId} targetId={item.targetId} path={item.path}>{item.label}</SectionLink>
-            ))}
-            <a href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 ↗</a>
-            <PhoneContact className="mobile-phone" />
-          </nav>
-        </details>
-      </header>
+      <JsonLd data={organizationSchema} />
+      <JsonLd data={faqSchema} />
+      <SiteHeader />
 
       <main id="top">
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero-grid-line" aria-hidden="true" />
           <div className="hero-copy">
             <p className="eyebrow"><span>욕실 부분시공 전문</span> {brand.serviceArea}</p>
-            <h1 id="hero-title">바꿔야 할 곳만,<br /><em>꼼꼼하게.</em></h1>
+            <h1 id="hero-title"><small>서울·인천·경기 욕실 부분시공 전문</small>바꿔야 할 곳만,<br /><em>꼼꼼하게.</em></h1>
             <p className="hero-description">전체 공사가 부담스러울 때, 필요한 부분만 정확하게.<br />매일 쓰는 욕실의 불편을 깔끔한 교체 시공으로 해결합니다.</p>
             <PhoneContact className="hero-phone" />
             <div className="hero-actions">
               <a className="button button-primary" href={brand.naverBlog} target="_blank" rel="noreferrer">네이버 블로그 보기 <span aria-hidden="true">↗</span></a>
-              <SectionLink className="button button-ghost" targetId="cases" path="/review">실제 시공 보기</SectionLink>
+              <Link className="button button-ghost" href="/works">실제 시공 보기</Link>
             </div>
           </div>
 
@@ -131,6 +118,7 @@ export default function Home() {
                 <ul>
                   {service.items.map((item) => <li key={item}>{item}</li>)}
                 </ul>
+                <Link className="service-detail-link" href={`/services/${service.slug}`}>상세 안내 →</Link>
               </article>
             ))}
           </div>
@@ -149,7 +137,7 @@ export default function Home() {
                 </div>
               </div>
               <p>최근에 마친 욕실 시공 사례를 소개합니다. 현장별 제품과 시공 과정을 사진으로 자세히 확인해 보세요.</p>
-              <a className="underlined-link" href={blogStats.sourceUrl} target="_blank" rel="noreferrer">시공 후기 전체보기 ↗</a>
+              <Link className="underlined-link" href="/works">시공 후기 전체보기 →</Link>
             </div>
           </div>
           <LatestPosts posts={blogPosts} />
@@ -203,18 +191,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="site-footer">
-        <div className="footer-brand">
-          <StaticImage src={brand.logoPath} alt="꼼꼼욕실" width="94" height="94" loading="lazy" />
-          <div><strong>{brand.name}</strong><span>{brand.englishName}</span></div>
-        </div>
-        <div className="social-links" aria-label="공식 채널">
-          <a href={brand.naverBlog} target="_blank" rel="noreferrer">NAVER BLOG ↗</a>
-          <a href={brand.youtube} target="_blank" rel="noreferrer">YOUTUBE ↗</a>
-          <a href={brand.instagram} target="_blank" rel="noreferrer">INSTAGRAM ↗</a>
-        </div>
-        <p className="copyright">© {new Date().getFullYear()} GGOMGGOM BATH. ALL RIGHTS RESERVED.</p>
-      </footer>
+      <SiteFooter />
     </>
   );
 }

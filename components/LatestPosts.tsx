@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { StaticImage } from "@/components/StaticImage";
 import { getNaverImageVariants, type CasePost } from "@/data/site";
 
@@ -8,7 +9,7 @@ export function LatestPosts({ posts }: { posts: CasePost[] }) {
         const image = getNaverImageVariants(post.image);
 
         return <article className={`post-card post-card-${index + 1}`} key={post.link}>
-          <a href={post.link} target="_blank" rel="noreferrer" aria-label={`${post.title} 새 창에서 읽기`}>
+          <Link href={`/works/${post.id}`} aria-label={`${post.title} 자세히 보기`}>
             <div className="post-image-wrap">
               {/* RSS에 포함된 꼼꼼욕실 자체 시공 이미지입니다. */}
               <StaticImage
@@ -31,9 +32,9 @@ export function LatestPosts({ posts }: { posts: CasePost[] }) {
               </div>
               <h3>{post.title}</h3>
               <p>{post.excerpt}</p>
-              <span className="text-link">시공 후기 보기 <span aria-hidden="true">↗</span></span>
+              <span className="text-link">시공 사례 보기 <span aria-hidden="true">→</span></span>
             </div>
-          </a>
+          </Link>
         </article>;
       })}
     </div>

@@ -27,12 +27,12 @@ jobs:
       - name: Commit updated data
         shell: bash
         run: |
-          if git diff --quiet -- data/blog-posts.json public/sitemap.xml; then
+          if git diff --quiet -- data/blog-posts.json data/blog-stats.json public/sitemap.xml public/rss.xml public/llms.txt; then
             echo "Blog data is already current."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/blog-posts.json public/sitemap.xml
+          git add data/blog-posts.json data/blog-stats.json public/sitemap.xml public/rss.xml public/llms.txt
           git commit -m "Update latest Naver blog posts"
           git push origin HEAD:master

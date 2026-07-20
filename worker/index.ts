@@ -4,6 +4,8 @@ import handler from "vinext/server/app-router-entry";
 
 const CANONICAL_HOST = "ggomggombath.com";
 const HSTS_VALUE = "max-age=31536000";
+const NAVER_VERIFICATION_PATH = "/navera86801b065c0a29fe7b53f2f61c70f17.html";
+const NAVER_VERIFICATION_BODY = "naver-site-verification: navera86801b065c0a29fe7b53f2f61c70f17.html";
 
 function permanentRedirect(url: URL) {
   return new Response(null, {
@@ -54,6 +56,17 @@ interface ExecutionContext {
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+
+    if (url.pathname === NAVER_VERIFICATION_PATH) {
+      return withSecurityHeaders(new Response(NAVER_VERIFICATION_BODY, {
+        status: 200,
+        headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=300" },
+      }));
+    }
+
+    if (url.pathname === "/review" || url.pathname === "/review/") {
+      return permanentRedirect(new URL("https://ggomggombath.com/works"));
+    }
 
     if (url.hostname === `www.${CANONICAL_HOST}`) {
       url.hostname = CANONICAL_HOST;

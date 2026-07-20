@@ -6,8 +6,7 @@ const outputRoot = new URL("../dist/client/", import.meta.url);
 const assetsConfigUrl = new URL("../wrangler.assets.jsonc", import.meta.url);
 const globalStylesUrl = new URL("../app/globals.css", import.meta.url);
 const blogStatsUrl = new URL("../data/blog-stats.json", import.meta.url);
-const sectionLinkUrl = new URL("../components/SectionLink.tsx", import.meta.url);
-const sectionRouteSyncUrl = new URL("../components/SectionRouteSync.tsx", import.meta.url);
+const blogPostsUrl = new URL("../data/blog-posts.json", import.meta.url);
 const faviconUrl = new URL("../public/favicon.svg", import.meta.url);
 const darkFaviconUrl = new URL("../public/favicon-dark.svg", import.meta.url);
 const logoUrl = new URL("../public/logo.svg", import.meta.url);
@@ -20,7 +19,7 @@ test("exports the homepage as a static asset", async () => {
   const stats = JSON.parse(statsSource);
   const renderedText = html.replaceAll("<!-- -->", "");
 
-  assert.match(html, /<title>꼼꼼욕실/);
+  assert.match(html, /<title>[^<]*꼼꼼욕실<\/title>/);
   assert.match(html, /010-2939-2537/);
   assert.match(html, /LATEST WORK/);
   assert.doesNotMatch(html, /<img[^>]*alt=""/);
@@ -32,11 +31,31 @@ test("exports the homepage as a static asset", async () => {
   assert.doesNotMatch(renderedText, /자동으로 불러옵니다/);
   assert.doesNotMatch(renderedText, /블로그의 실제 상담|기록 기준|네이버 블로그 상담/);
   assert.match(renderedText, /시공 가능 여부와 예상 비용이 궁금하시면 전화로 편하게 상담해 주세요/);
-  for (const path of ["about", "review", "process", "faq"]) {
+  for (const path of ["about", "services", "works", "process", "faq"]) {
     assert.match(html, new RegExp(`href="/${path}"`));
     assert.ok(await readFile(new URL(`${path}.html`, outputRoot), "utf8"));
   }
+  for (const path of ["toilet-replacement", "washbasin-replacement", "faucet-replacement", "bathroom-cabinet"]) {
+    assert.ok(await readFile(new URL(`services/${path}.html`, outputRoot), "utf8"));
+  }
+  await assert.rejects(readFile(new URL("review.html", outputRoot), "utf8"));
   assert.doesNotMatch(html, /\/api\/blog/);
+});
+
+test("exports ten substantial first-party work pages", async () => {
+  const posts = JSON.parse(await readFile(blogPostsUrl, "utf8"));
+  assert.equal(posts.length, 10);
+
+  for (const post of posts) {
+    assert.ok(post.content.length >= 30);
+    assert.ok(post.images.length >= 3);
+    const html = await readFile(new URL(`works/${post.id}.html`, outputRoot), "utf8");
+    assert.match(html, new RegExp(`<link rel="canonical" href="https://ggomggombath\\.com/works/${post.id}"`));
+    assert.match(html, /BlogPosting/);
+    assert.match(html, /BreadcrumbList/);
+    assert.match(html, new RegExp(`blog\\.naver\\.com/refresh-bath/${post.id}`));
+    assert.doesNotMatch(html, /<img[^>]*alt=""/);
+  }
 });
 
 test("stores a positive completed works count from the construction category", async () => {
@@ -48,16 +67,23 @@ test("stores a positive completed works count from the construction category", a
   assert.ok(stats.completedWorks > 0);
 });
 
-test("exports discovery and app metadata as static files", async () => {
-  const [robots, sitemap, manifest, headers] = await Promise.all([
+test("exports discovery, RSS and app metadata as static files", async () => {
+  const [robots, sitemap, rss, indexNowKey, manifest, headers] = await Promise.all([
     readFile(new URL("robots.txt", outputRoot), "utf8"),
     readFile(new URL("sitemap.xml", outputRoot), "utf8"),
+    readFile(new URL("rss.xml", outputRoot), "utf8"),
+    readFile(new URL("9a4f0c1b7d2e43f6a8c95b1e7042d639.txt", outputRoot), "utf8"),
     readFile(new URL("manifest.webmanifest", outputRoot), "utf8"),
     readFile(new URL("_headers", outputRoot), "utf8"),
   ]);
 
   assert.match(robots, /Sitemap: https:\/\/ggomggombath\.com\/sitemap\.xml/);
   assert.match(sitemap, /<loc>https:\/\/ggomggombath\.com\/<\/loc>/);
+  assert.equal((sitemap.match(/<loc>/g) ?? []).length, 20);
+  assert.match(sitemap, /https:\/\/ggomggombath\.com\/services\/toilet-replacement/);
+  assert.match(sitemap, /https:\/\/ggomggombath\.com\/works\/224346358464/);
+  assert.match(rss, /<title>꼼꼼욕실 시공 사례<\/title>/);
+  assert.equal(indexNowKey.trim(), "9a4f0c1b7d2e43f6a8c95b1e7042d639");
   assert.equal(JSON.parse(manifest).short_name, "꼼꼼욕실");
   assert.match(headers, /Strict-Transport-Security: max-age=31536000/);
 });
@@ -71,25 +97,27 @@ test("runs the verification Worker only for the exact Naver ownership path", asy
   assert.equal(config.assets.binding, "ASSETS");
   assert.deepEqual(config.assets.run_worker_first, [
     "/navera86801b065c0a29fe7b53f2f61c70f17.html",
+    "/review",
+    "/review/",
   ]);
 });
 
-test("anchor navigation does not hold mouse-wheel scrolling", async () => {
-  const [styles, sectionLink, sectionRouteSync] = await Promise.all([
-    readFile(globalStylesUrl, "utf8"),
-    readFile(sectionLinkUrl, "utf8"),
-    readFile(sectionRouteSyncUrl, "utf8"),
-  ]);
-
-  assert.doesNotMatch(styles, /scroll-behavior:\s*smooth/);
-  assert.match(styles, /overflow-anchor:\s*none/);
-  assert.match(styles, /html\s*{\s*scroll-padding-top:\s*84px;\s*}/);
-  assert.match(styles, /@media \(max-width:\s*980px\)[\s\S]*html\s*{\s*scroll-padding-top:\s*76px;\s*}/);
-  assert.match(sectionLink, /event\.preventDefault\(\)/);
-  assert.match(sectionLink, /window\.scrollTo\(\{ top, behavior: "auto" \}\)/);
-  assert.match(sectionLink, /window\.history\.pushState/);
-  assert.match(sectionRouteSync, /window\.addEventListener\("popstate"/);
-  assert.match(sectionRouteSync, /window\.history\.scrollRestoration = "manual"/);
+test("gives core routes unique titles, canonicals and headings", async () => {
+  const routes = ["about", "services", "works", "process", "faq"];
+  const titles = new Set();
+  const headings = new Set();
+  for (const route of routes) {
+    const html = await readFile(new URL(`${route}.html`, outputRoot), "utf8");
+    const title = html.match(/<title>(.*?)<\/title>/)?.[1];
+    const heading = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    assert.match(html, new RegExp(`<link rel="canonical" href="https://ggomggombath\\.com/${route}"`));
+    assert.ok(title);
+    assert.ok(heading);
+    titles.add(title);
+    headings.add(heading);
+  }
+  assert.equal(titles.size, routes.length);
+  assert.equal(headings.size, routes.length);
 });
 
 test("aligns the recent-work heading and completed-work metric", async () => {
