@@ -63,5 +63,7 @@ test("retries a rejected nano response once with the mini fallback", async () =>
   assert.equal(result.model, "gpt-5-mini");
   assert.deepEqual(requests.map((request) => request.model), ["gpt-5-nano", "gpt-5-mini"]);
   assert.equal(requests[0].store, false);
+  assert.equal(requests[0].reasoning.effort, "minimal");
+  assert.equal(requests[0].max_output_tokens, 2_400);
   assert.equal(requests[0].text.format.type, "json_schema");
 });

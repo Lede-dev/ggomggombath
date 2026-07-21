@@ -174,8 +174,8 @@ async function requestSummary({ apiKey, model, input, fetchImpl }) {
     body: JSON.stringify({
       model,
       store: false,
-      reasoning: { effort: "low" },
-      max_output_tokens: 900,
+      reasoning: { effort: "minimal" },
+      max_output_tokens: 2_400,
       instructions: [
         "당신은 욕실 시공 기록을 고객이 이해하기 쉬운 한국어로 다듬는 편집자입니다.",
         "원문에 명시된 사실만 사용하고 일반적인 장점, 추정, 과장, 보증을 추가하지 마세요.",
@@ -183,6 +183,7 @@ async function requestSummary({ apiKey, model, input, fetchImpl }) {
         "블로그, 글, 포스팅, 확인해 보세요 같은 매체 안내나 광고 문구를 쓰지 마세요.",
         "핵심 내용은 problem, work, result 순서로 각각 한 문장씩 작성하세요.",
         "각 문장에 근거가 된 원문 문단 번호를 정확히 기록하세요.",
+        "문단 번호는 sourceParagraphs 필드에만 넣고 summary와 text 문장에는 쓰지 마세요.",
         "원문에 결과가 명확하지 않으면 완료 후 점검한 사실까지만 쓰고 효과를 만들어내지 마세요.",
       ].join("\n"),
       input,
@@ -206,11 +207,12 @@ async function requestSummary({ apiKey, model, input, fetchImpl }) {
   }
   const payload = await response.json();
   const text = responseText(payload);
-  if (!text) throw new Error(`OpenAI ${model} 응답에 출력 텍스트가 없습니다.`);
+  const responseState = payload?.incomplete_details?.reason || payload?.status || "unknown";
+  if (!text) throw new Error(`OpenAI ${model} 응답에 출력 텍스트가 없습니다. 상태: ${responseState}`);
   try {
     return JSON.parse(text);
   } catch {
-    throw new Error(`OpenAI ${model} 응답을 JSON으로 해석할 수 없습니다.`);
+    throw new Error(`OpenAI ${model} 응답을 JSON으로 해석할 수 없습니다. 상태: ${responseState}`);
   }
 }
 
