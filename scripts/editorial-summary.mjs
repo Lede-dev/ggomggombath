@@ -14,6 +14,7 @@ const forbiddenCopy = [
   /최고(?:의|로)?/,
   /합리적인\s*비용/,
   /전문\s*(?:업체|시공)/,
+  /(?:^|[.!?]\s*)(?:문|문제|작업|결과)\s*:/,
   /[\u{1F1E6}-\u{1FAFF}\u{2600}-\u{27BF}]/u,
 ];
 
@@ -105,6 +106,12 @@ function evidenceFor(paragraphNumbers, paragraphs) {
   return paragraphNumbers.map((number) => paragraphs[number - 1]).filter(Boolean).join(" ");
 }
 
+export function needsEditorialRepair(post) {
+  return [post?.summary, ...(post?.highlights ?? [])]
+    .map(normalizeText)
+    .some((text) => forbiddenCopy.some((pattern) => pattern.test(text)));
+}
+
 export function validateEditorialSummary(candidate, sourceParagraphs) {
   const errors = [];
   const paragraphs = sourceParagraphs.map(normalizeText).filter(Boolean);
@@ -183,6 +190,7 @@ async function requestSummary({ apiKey, model, input, paragraphCount, fetchImpl 
         "당신은 욕실 시공 기록을 고객이 이해하기 쉬운 한국어로 다듬는 편집자입니다.",
         "원문에 명시된 사실만 사용하고 일반적인 장점, 추정, 과장, 보증을 추가하지 마세요.",
         "요약은 고객의 불편 또는 요청, 실제 작업, 확인된 결과가 자연스럽게 이어지는 2~3문장으로 작성하세요.",
+        "summary 문장에 '문:', '문제:', '작업:', '결과:' 같은 제목이나 구분 표시를 붙이지 마세요.",
         "블로그, 글, 포스팅, 확인해 보세요 같은 매체 안내나 광고 문구를 쓰지 마세요.",
         "핵심 내용은 problem, work, result 순서로 각각 한 문장씩 작성하세요.",
         `각 문장에 근거가 된 원문 문단 번호를 1부터 ${paragraphCount} 사이에서 정확히 기록하세요.`,

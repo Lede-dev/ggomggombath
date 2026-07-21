@@ -37,6 +37,16 @@ test("rejects facts and promotional copy that are absent from the source", () =>
   assert.ok(result.errors.some((error) => error.includes("모델명")));
 });
 
+test("rejects internal problem, work and result labels from customer-facing copy", () => {
+  const result = validateEditorialSummary({
+    ...validSummary,
+    summary: "문제: 물탱크가 깨져 교체를 요청하셨습니다. 작업: 기존 변기를 철거하고 대림바스 CC-735를 설치했습니다. 결과: 누수와 물내림 상태를 점검했습니다.",
+  }, content);
+
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some((error) => error.includes("광고성")));
+});
+
 test("retries a rejected nano response once with the mini fallback", async () => {
   const requests = [];
   const fetchImpl = async (_url, options) => {

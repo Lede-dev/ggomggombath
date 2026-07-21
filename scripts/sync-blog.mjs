@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { EDITORIAL_VERSION, generateEditorialSummary } from "./editorial-summary.mjs";
+import { EDITORIAL_VERSION, generateEditorialSummary, needsEditorialRepair } from "./editorial-summary.mjs";
 
 const BLOG_ID = "refresh-bath";
 const WORKS_CATEGORY = "시공후기";
@@ -222,7 +222,8 @@ async function applyEditorialProcessing(post, previous) {
   const hasCurrentAiSummary = sourceUnchanged
     && previous.editorialVersion === EDITORIAL_VERSION
     && previous.editorialMode === "ai-grounded"
-    && previous.editorialStatus === "approved";
+    && previous.editorialStatus === "approved"
+    && !needsEditorialRepair(previous);
   if (hasCurrentAiSummary) return previous;
   if (!process.env.OPENAI_API_KEY && sourceUnchanged) return previous;
 
