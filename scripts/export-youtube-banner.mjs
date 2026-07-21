@@ -29,27 +29,27 @@ const layout = [
   {
     name: "title",
     source: { left: 28, top: 88, width: 274, height: 68 },
-    target: { left: 455, top: 463, width: 500, height: 124 },
+    target: { left: 455, top: 477, width: 500, height: 124 },
   },
   {
     name: "accent",
     source: { left: 29, top: 164, width: 27, height: 12 },
-    target: { left: 460, top: 596, width: 42, height: 18 },
+    target: { left: 460, top: 610, width: 42, height: 18 },
   },
   {
     name: "tagline",
     source: { left: 28, top: 183, width: 269, height: 30 },
-    target: { left: 460, top: 622, width: 405, height: 45 },
+    target: { left: 460, top: 636, width: 405, height: 45 },
   },
   {
     name: "service-area",
     source: { left: 30, top: 226, width: 262, height: 27 },
-    target: { left: 1040, top: 500, width: 400, height: 41 },
+    target: { left: 1040, top: 514, width: 400, height: 41 },
   },
   {
     name: "phone",
     source: { left: 28, top: 258, width: 252, height: 36 },
-    target: { left: 1040, top: 565, width: 400, height: 57 },
+    target: { left: 1040, top: 579, width: 400, height: 57 },
   },
 ];
 
