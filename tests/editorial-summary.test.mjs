@@ -66,4 +66,5 @@ test("retries a rejected nano response once with the mini fallback", async () =>
   assert.equal(requests[0].reasoning.effort, "minimal");
   assert.equal(requests[0].max_output_tokens, 2_400);
   assert.equal(requests[0].text.format.type, "json_schema");
+  assert.equal(requests[0].text.format.schema.properties.summarySourceParagraphs.items.maximum, content.length);
 });

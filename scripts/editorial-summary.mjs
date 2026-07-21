@@ -17,40 +17,43 @@ const forbiddenCopy = [
   /[\u{1F1E6}-\u{1FAFF}\u{2600}-\u{27BF}]/u,
 ];
 
-const summarySchema = {
-  type: "object",
-  additionalProperties: false,
-  required: ["summary", "summarySourceParagraphs", "highlights"],
-  properties: {
-    summary: { type: "string", minLength: 45, maxLength: 220 },
-    summarySourceParagraphs: {
-      type: "array",
-      minItems: 1,
-      maxItems: 5,
-      items: { type: "integer", minimum: 1 },
-    },
-    highlights: {
-      type: "array",
-      minItems: 3,
-      maxItems: 3,
-      items: {
-        type: "object",
-        additionalProperties: false,
-        required: ["kind", "text", "sourceParagraphs"],
-        properties: {
-          kind: { type: "string", enum: ["problem", "work", "result"] },
-          text: { type: "string", minLength: 15, maxLength: 160 },
-          sourceParagraphs: {
-            type: "array",
-            minItems: 1,
-            maxItems: 4,
-            items: { type: "integer", minimum: 1 },
+function createSummarySchema(paragraphCount) {
+  const paragraphNumber = { type: "integer", minimum: 1, maximum: paragraphCount };
+  return {
+    type: "object",
+    additionalProperties: false,
+    required: ["summary", "summarySourceParagraphs", "highlights"],
+    properties: {
+      summary: { type: "string", minLength: 45, maxLength: 220 },
+      summarySourceParagraphs: {
+        type: "array",
+        minItems: 1,
+        maxItems: 5,
+        items: paragraphNumber,
+      },
+      highlights: {
+        type: "array",
+        minItems: 3,
+        maxItems: 3,
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["kind", "text", "sourceParagraphs"],
+          properties: {
+            kind: { type: "string", enum: ["problem", "work", "result"] },
+            text: { type: "string", minLength: 15, maxLength: 160 },
+            sourceParagraphs: {
+              type: "array",
+              minItems: 1,
+              maxItems: 4,
+              items: paragraphNumber,
+            },
           },
         },
       },
     },
-  },
-};
+  };
+}
 
 function normalizeText(value) {
   return String(value ?? "")
@@ -164,7 +167,7 @@ function createPrompt(post) {
   };
 }
 
-async function requestSummary({ apiKey, model, input, fetchImpl }) {
+async function requestSummary({ apiKey, model, input, paragraphCount, fetchImpl }) {
   const response = await fetchImpl(OPENAI_RESPONSES_URL, {
     method: "POST",
     headers: {
@@ -182,7 +185,7 @@ async function requestSummary({ apiKey, model, input, fetchImpl }) {
         "요약은 고객의 불편 또는 요청, 실제 작업, 확인된 결과가 자연스럽게 이어지는 2~3문장으로 작성하세요.",
         "블로그, 글, 포스팅, 확인해 보세요 같은 매체 안내나 광고 문구를 쓰지 마세요.",
         "핵심 내용은 problem, work, result 순서로 각각 한 문장씩 작성하세요.",
-        "각 문장에 근거가 된 원문 문단 번호를 정확히 기록하세요.",
+        `각 문장에 근거가 된 원문 문단 번호를 1부터 ${paragraphCount} 사이에서 정확히 기록하세요.`,
         "문단 번호는 sourceParagraphs 필드에만 넣고 summary와 text 문장에는 쓰지 마세요.",
         "원문에 결과가 명확하지 않으면 완료 후 점검한 사실까지만 쓰고 효과를 만들어내지 마세요.",
       ].join("\n"),
@@ -192,7 +195,7 @@ async function requestSummary({ apiKey, model, input, fetchImpl }) {
           type: "json_schema",
           name: "construction_case_summary",
           strict: true,
-          schema: summarySchema,
+          schema: createSummarySchema(paragraphCount),
         },
       },
     }),
@@ -228,7 +231,7 @@ export async function generateEditorialSummary(post, options = {}) {
 
   for (const model of models) {
     try {
-      const candidate = await requestSummary({ apiKey, model, input, fetchImpl });
+      const candidate = await requestSummary({ apiKey, model, input, paragraphCount: paragraphs.length, fetchImpl });
       const validation = validateEditorialSummary(candidate, paragraphs);
       if (validation.valid) return { ok: true, model, attempts, ...validation.value };
       attempts.push({ model, errors: validation.errors });
