@@ -52,7 +52,7 @@ export default async function WorkDetailPage({ params }: WorkPageProps) {
     .filter((item) => item.id !== post.id)
     .map((item) => ({ item, score: relevanceScore(item, post) }))
     .sort((a, b) => b.score - a.score)
-    .slice(0, 3)
+    .slice(0, 2)
     .map(({ item }) => item);
   const articleSchema = {
     "@context": "https://schema.org",

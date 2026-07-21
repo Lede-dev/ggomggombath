@@ -10,6 +10,7 @@ const blogPostsUrl = new URL("../data/blog-posts.json", import.meta.url);
 const faviconUrl = new URL("../public/favicon.svg", import.meta.url);
 const darkFaviconUrl = new URL("../public/favicon-dark.svg", import.meta.url);
 const logoUrl = new URL("../public/logo.svg", import.meta.url);
+const workDetailPageUrl = new URL("../app/works/[id]/page.tsx", import.meta.url);
 
 test("exports the homepage as a static asset", async () => {
   const [html, statsSource] = await Promise.all([
@@ -170,6 +171,13 @@ test("aligns the recent-work heading and completed-work metric", async () => {
   assert.match(styles, /\.cases \.section-heading-row\s*{\s*align-items:\s*start;\s*}/);
   assert.match(styles, /\.cases \.section-heading-row > div\s*{\s*align-self:\s*start;\s*}/);
   assert.match(styles, /\.completed-work-count\s*{[^}]*align-items:\s*center;[^}]*padding:\s*18px 0 18px 18px;/);
+});
+
+test("limits related construction cases to two cards", async () => {
+  const workDetailPage = await readFile(workDetailPageUrl, "utf8");
+
+  assert.match(workDetailPage, /\.slice\(0, 2\)\s*\.map\(\(\{ item \}\) => item\)/);
+  assert.doesNotMatch(workDetailPage, /\.slice\(0, 3\)\s*\.map\(\(\{ item \}\) => item\)/);
 });
 
 test("keeps the header brand compact and close to the left edge", async () => {
