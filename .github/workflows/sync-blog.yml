@@ -24,6 +24,10 @@ jobs:
           node-version-file: .node-version
       - name: Fetch latest posts
         run: npm run sync:blog
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_SUMMARY_MODEL: gpt-5-nano
+          OPENAI_SUMMARY_FALLBACK_MODEL: gpt-5-mini
       - name: Commit updated data
         shell: bash
         run: |

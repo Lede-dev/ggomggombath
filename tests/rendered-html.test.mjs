@@ -55,13 +55,19 @@ test("exports every substantial first-party construction page", async () => {
     assert.ok(post.content.length >= 20);
     assert.ok(post.images.length >= 3);
     assert.ok(post.displayTitle.length > 5);
-    assert.ok(post.summary.includes("우리 집과 비슷한 조건인지"));
-    assert.doesNotMatch(post.summary, /구조화|자동 생성|원문을 우선/);
+    assert.ok(post.summary.length >= 45 && post.summary.length <= 220);
+    assert.doesNotMatch(post.summary, /구조화|자동 생성|원문을 우선|이 글 하나로|궁금하셨다면/);
     assert.doesNotMatch(post.siteLabel, /깨진|파손|막힌|물내림|고장|노후|금가|(?:양)?변기교체|세면대교체/);
     assert.ok(post.highlights.length >= 2 && post.highlights.length <= 3);
     assert.match(post.sourceHash, /^[a-f0-9]{64}$/);
-    assert.equal(post.editorialMode, "source-derived");
-    assert.equal(post.editorialVersion, "source-structure-v5");
+    assert.ok(["source-derived", "ai-grounded"].includes(post.editorialMode));
+    if (post.editorialMode === "ai-grounded") {
+      assert.equal(post.editorialVersion, "ai-grounded-v1");
+      assert.equal(post.editorialStatus, "approved");
+      assert.ok(["gpt-5-nano", "gpt-5-mini"].includes(post.summaryModel));
+      assert.ok(post.summaryEvidence.summary.length >= 1);
+      assert.equal(post.summaryEvidence.highlights.length, 3);
+    }
     const html = await readFile(new URL(`works/${post.id}.html`, outputRoot), "utf8");
     assert.match(html, new RegExp(`<link rel="canonical" href="https://ggomggombath\\.com/works/${post.id}"`));
     assert.match(html, /BlogPosting/);

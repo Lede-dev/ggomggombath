@@ -1,6 +1,6 @@
 # 꼼꼼욕실 홈페이지 운영 설정 가이드
 
-이 사이트는 방문 요청을 Worker에서 실행하지 않는 완전 정적 자산으로 제공됩니다. 최신 시공 후기 3개는 빌드 시 네이버 블로그 RSS에서 `data/blog-posts.json`으로 동기화됩니다. 서비스·FAQ·채널 정보는 `data/site.ts`를 원본 데이터로 사용합니다.
+이 사이트는 방문 요청을 Worker에서 실행하지 않는 완전 정적 자산으로 제공됩니다. 시공 사례 전체는 빌드 시 네이버 블로그에서 `data/blog-posts.json`으로 동기화되며, 메인 화면에는 최신 3개만 표시됩니다. 서비스·FAQ·채널 정보는 `data/site.ts`를 원본 데이터로 사용합니다.
 
 ## 1. 도메인과 기본 주소
 
@@ -9,11 +9,14 @@
 3. `app/page.tsx`의 구조화 데이터와 `public/llms.txt`에 들어 있는 임시 주소 `https://ggomggombath.com`을 실제 주소로 변경합니다.
 4. HTTPS, `www` 사용 여부, 대표 도메인 리디렉션을 한 가지로 통일합니다.
 
-## 2. 네이버 블로그 자동 노출
+## 2. 네이버 블로그 자동 노출과 요약 검증
 
-- 현재 RSS: `https://rss.blog.naver.com/refresh-bath.xml`
-- `npm run sync:blog`가 최신 글 제목, 날짜, 설명, 대표 이미지를 정적 JSON으로 저장합니다.
-- GitHub Actions가 매시간 RSS를 확인하고 내용이 바뀐 경우에만 `master`에 커밋합니다.
+- 원본 시공 카테고리: `https://blog.naver.com/PostList.naver?blogId=refresh-bath&categoryNo=9`
+- `npm run sync:blog`가 시공 사례 전체의 제목, 날짜, 본문, 이미지를 정적 JSON으로 저장합니다.
+- GitHub Actions가 매시간 새 글을 확인하고 내용이 바뀐 경우에만 `master`에 커밋합니다.
+- GitHub Actions의 Repository secret에 `OPENAI_API_KEY`가 등록되어 있어야 합니다.
+- 새 글 또는 편집 규칙이 바뀐 글은 `gpt-5-nano`로 요약합니다. 원문 근거 번호, 과장 표현, 원문에 없는 숫자·제품명을 코드로 검증하고, 실패하면 `gpt-5-mini`로 한 번 다시 작성합니다.
+- 두 모델의 결과가 모두 검증을 통과하지 못한 신규 글은 `review-required`로 저장하고 검색 사이트맵에서 제외합니다. 기존에 공개된 글은 마지막 정상 요약을 유지합니다.
 - Cloudflare Workers Builds를 `master`에 연결하면 변경된 글이 자동으로 Assets-only 정적 재배포됩니다.
 - 방문 브라우저에서는 RSS API를 호출하지 않으므로 Worker 요청 한도를 사용하지 않습니다.
 - 배포에는 `wrangler.assets.jsonc`를 사용하며 Worker 진입점은 포함하지 않습니다.
