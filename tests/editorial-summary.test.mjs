@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { generateEditorialSummary, needsEditorialRepair, validateEditorialSummary } from "../scripts/editorial-summary.mjs";
+import { generateEditorialSummary, needsEditorialRepair, shouldAttemptEditorialReview, validateEditorialSummary } from "../scripts/editorial-summary.mjs";
 
 const content = [
   "고객님께서 물탱크가 깨져 변기 교체를 요청하셨습니다.",
@@ -61,6 +61,16 @@ test("rejects outcome guarantees and subjective result claims", () => {
   assert.ok(result.errors.some((error) => error.includes("광고성")));
   assert.equal(needsEditorialRepair({ summary: "설치 후 사용자 편의가 향상되었습니다.", highlights: [] }), true);
   assert.equal(needsEditorialRepair({ summary: "최종 점검에서 누수 여부와 물내림", highlights: [] }), true);
+});
+
+test("does not repeatedly charge for the same failed editorial review", () => {
+  const previous = {
+    editorialStatus: "review-required",
+    editorialAttemptVersion: "ai-grounded-v1",
+  };
+  assert.equal(shouldAttemptEditorialReview(previous, true), false);
+  assert.equal(shouldAttemptEditorialReview(previous, false), true);
+  assert.equal(shouldAttemptEditorialReview(previous, true, "ai-grounded-v2"), true);
 });
 
 test("retries a rejected nano response once with the mini fallback", async () => {

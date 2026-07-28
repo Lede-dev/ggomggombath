@@ -36,6 +36,8 @@ export type CasePost = {
   editorialMode: "source-derived" | "ai-grounded";
   editorialVersion: string;
   editorialStatus: "approved" | "review-required";
+  editorialAttemptVersion?: string;
+  editorialAttemptedAt?: string;
   summaryEvidence?: {
     summary: number[];
     highlights: number[][];

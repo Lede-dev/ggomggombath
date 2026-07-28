@@ -121,6 +121,12 @@ export function needsEditorialRepair(post) {
     .some((text) => forbiddenCopy.some((pattern) => pattern.test(text)));
 }
 
+export function shouldAttemptEditorialReview(previous, sourceUnchanged, version = EDITORIAL_VERSION) {
+  return !(sourceUnchanged
+    && previous?.editorialStatus === "review-required"
+    && previous?.editorialAttemptVersion === version);
+}
+
 export function validateEditorialSummary(candidate, sourceParagraphs) {
   const errors = [];
   const paragraphs = sourceParagraphs.map(normalizeText).filter(Boolean);

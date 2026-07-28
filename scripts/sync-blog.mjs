@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { EDITORIAL_VERSION, generateEditorialSummary, needsEditorialRepair } from "./editorial-summary.mjs";
+import { EDITORIAL_VERSION, generateEditorialSummary, needsEditorialRepair, shouldAttemptEditorialReview } from "./editorial-summary.mjs";
 import { assessCaseQuality, extractIssues, extractProduct, formatNaverDate } from "./blog-content.mjs";
 
 const BLOG_ID = "refresh-bath";
@@ -217,6 +217,12 @@ async function applyEditorialProcessing(post, previous) {
     const merged = { ...previous, ...refreshedPost, excerpt: previous.excerpt, summary: previous.summary, highlights: previous.highlights };
     return { ...merged, quality: assessCaseQuality(merged) };
   }
+  const hasFailedCurrentReview = !shouldAttemptEditorialReview(previous, sourceUnchanged);
+  if (hasFailedCurrentReview) {
+    reviewRequiredCount += 1;
+    const merged = { ...previous, ...refreshedPost, excerpt: previous.excerpt, summary: previous.summary, highlights: previous.highlights };
+    return { ...merged, quality: "source-only" };
+  }
   if (!process.env.OPENAI_API_KEY && sourceUnchanged) {
     reviewRequiredCount += 1;
     const merged = { ...previous, ...refreshedPost, excerpt: previous.excerpt, summary: previous.summary, highlights: previous.highlights };
@@ -259,7 +265,13 @@ async function applyEditorialProcessing(post, previous) {
     if (sourceUnchanged && previous) {
       reviewRequiredCount += 1;
       const merged = { ...previous, ...refreshedPost, excerpt: previous.excerpt, summary: previous.summary, highlights: previous.highlights };
-      return { ...merged, editorialStatus: "review-required", quality: "source-only" };
+      return {
+        ...merged,
+        editorialStatus: "review-required",
+        editorialAttemptVersion: EDITORIAL_VERSION,
+        editorialAttemptedAt: SYNC_DATE,
+        quality: "source-only",
+      };
     }
   }
 
@@ -274,6 +286,10 @@ async function applyEditorialProcessing(post, previous) {
     editorialMode: "source-derived",
     editorialVersion: EDITORIAL_VERSION,
     editorialStatus: "review-required",
+    ...(process.env.OPENAI_API_KEY ? {
+      editorialAttemptVersion: EDITORIAL_VERSION,
+      editorialAttemptedAt: SYNC_DATE,
+    } : {}),
     quality: "source-only",
   };
 }
