@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { EDITORIAL_VERSION, generateEditorialSummary, needsEditorialRepair } from "./editorial-summary.mjs";
+import { assessCaseQuality, extractIssues, extractProduct, formatNaverDate } from "./blog-content.mjs";
 
 const BLOG_ID = "refresh-bath";
 const WORKS_CATEGORY = "시공후기";
@@ -10,7 +11,7 @@ const WORKS_CATEGORY_NO = 9;
 const WORKS_CATEGORY_URL = "https://blog.naver.com/PostList.naver?blogId=refresh-bath&categoryNo=9&from=postList&parentCategoryNo=9";
 const WORKS_LIST_URL = "https://blog.naver.com/PostTitleListAsync.naver";
 const SITE_URL = "https://ggomggombath.com";
-const SITE_UPDATED_AT = "2026-07-21";
+const SITE_UPDATED_AT = "2026-07-28";
 const SYNC_DATE = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Asia/Seoul",
   year: "numeric",
@@ -21,6 +22,7 @@ const LIST_PAGE_SIZE = 30;
 const DETAIL_CONCURRENCY = 2;
 const REQUEST_INTERVAL_MS = 650;
 const RSS_ITEMS_LIMIT = 20;
+const WORKS_PAGE_SIZE = 10;
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const postsPath = resolve(rootDir, "data/blog-posts.json");
 const statsPath = resolve(rootDir, "data/blog-stats.json");
@@ -61,37 +63,6 @@ function stripMarkup(value) {
     .replace(/[\u200B-\u200D\uFEFF]/g, "")
     .replace(/\s+/g, " ")
     .trim();
-}
-
-function formatNaverDate(value) {
-  const match = value.match(/(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\./);
-  if (!match) return { display: value, iso: SITE_UPDATED_AT };
-  const [, year, rawMonth, rawDay] = match;
-  const month = rawMonth.padStart(2, "0");
-  const day = rawDay.padStart(2, "0");
-  return {
-    display: `${year}.${month}.${day}`,
-    iso: `${year}-${month}-${day}`,
-  };
-}
-
-function extractProduct(title) {
-  return title.match(/(?:대림바스|이바스|대림도비도스|하츠|이누스|아메리칸스탠다드|한샘바스|인토)\s*(?:[A-Z]{2,4}-?\d+[A-Z]?|IC\d+E?)/i)?.[0].replace(/([가-힣])([A-Z])/i, "$1 $2") ?? "";
-}
-
-function extractIssues(title, excerpt) {
-  const source = `${title} ${excerpt}`;
-  const rules = [
-    [/깨짐|깨진|파손/, "도기 파손"],
-    [/막힘|막힌/, "반복 막힘"],
-    [/물내림/, "물내림 저하"],
-    [/냄새|악취/, "욕실 냄새"],
-    [/누수|물샘/, "누수"],
-    [/고장/, "제품 고장"],
-    [/노후/, "제품 노후"],
-  ];
-  const issues = rules.filter(([pattern]) => pattern.test(source)).map(([, label]) => label);
-  return [...new Set(issues)];
 }
 
 function extractService(title, content = []) {
@@ -219,29 +190,14 @@ function createSourceHash(post) {
 async function applyEditorialProcessing(post, previous) {
   const sourceHash = createSourceHash(post);
   const sourceUnchanged = previous && createSourceHash(previous) === sourceHash;
-  const hasCurrentAiSummary = sourceUnchanged
-    && previous.editorialVersion === EDITORIAL_VERSION
-    && previous.editorialMode === "ai-grounded"
-    && previous.editorialStatus === "approved"
-    && !needsEditorialRepair(previous);
-  if (hasCurrentAiSummary) return previous;
-  if (!process.env.OPENAI_API_KEY && sourceUnchanged) return previous;
-
   const service = extractService(post.title, post.content);
   const area = extractArea(post.title);
   const siteLabel = extractSiteLabel(post.title, area);
-  const product = extractProduct(post.title);
-  const issues = extractIssues(post.title, post.excerpt || "");
+  const product = extractProduct(post.title, post.content);
+  const issues = extractIssues(post.title, previous?.summary || post.excerpt || "", post.content);
   const fallbackHighlights = selectSourceHighlights(post.content, area, product);
-  const reasonText = issues.length ? `${issues.slice(0, 2).join("·")} 문제로 ` : "";
-  const productText = product ? `${product} 설치 모습과 ` : "";
-  const location = createLocationLabel(area, siteLabel);
-  const fallbackSummary = `${location}에서 ${reasonText}진행한 ${service} 현장입니다. ${productText}시공 전후 상태와 실제 작업 과정을 정리했습니다.`;
-  const baseQuality = area !== "서울·인천·경기" && service !== "욕실 부분시공" && fallbackHighlights.length >= 2 && post.images.length >= 1
-    ? "indexable"
-    : "source-only";
   const displayTitle = createDisplayTitle(area, siteLabel, service, product);
-  const basePost = {
+  const refreshedPost = {
     ...post,
     area,
     siteLabel,
@@ -252,13 +208,36 @@ async function applyEditorialProcessing(post, previous) {
     seoTitle: displayTitle,
     sourceHash,
   };
+  const hasCurrentAiSummary = sourceUnchanged
+    && previous.editorialVersion === EDITORIAL_VERSION
+    && previous.editorialMode === "ai-grounded"
+    && previous.editorialStatus === "approved"
+    && !needsEditorialRepair(previous);
+  if (hasCurrentAiSummary) {
+    const merged = { ...previous, ...refreshedPost, excerpt: previous.excerpt, summary: previous.summary, highlights: previous.highlights };
+    return { ...merged, quality: assessCaseQuality(merged) };
+  }
+  if (!process.env.OPENAI_API_KEY && sourceUnchanged) {
+    reviewRequiredCount += 1;
+    const merged = { ...previous, ...refreshedPost, excerpt: previous.excerpt, summary: previous.summary, highlights: previous.highlights };
+    return { ...merged, editorialStatus: "review-required", quality: "source-only" };
+  }
+
+  const reasonText = issues.length ? `${issues.slice(0, 2).join("·")} 문제로 ` : "";
+  const productText = product ? `${product} 설치 모습과 ` : "";
+  const location = createLocationLabel(area, siteLabel);
+  const fallbackSummary = `${location}에서 ${reasonText}진행한 ${service} 현장입니다. ${productText}시공 전후 상태와 실제 작업 과정을 정리했습니다.`;
+  const basePost = {
+    ...refreshedPost,
+    highlights: fallbackHighlights,
+  };
 
   if (process.env.OPENAI_API_KEY) {
     const generated = await generateEditorialSummary(basePost);
     if (generated.ok) {
       aiGeneratedCount += 1;
       if (generated.model !== (process.env.OPENAI_SUMMARY_MODEL || "gpt-5-nano")) aiFallbackCount += 1;
-      return {
+      const approvedPost = {
         ...basePost,
         excerpt: generated.summary,
         summary: generated.summary,
@@ -269,15 +248,19 @@ async function applyEditorialProcessing(post, previous) {
         editorialMode: "ai-grounded",
         editorialVersion: EDITORIAL_VERSION,
         editorialStatus: "approved",
-        quality: baseQuality,
       };
+      return { ...approvedPost, quality: assessCaseQuality(approvedPost) };
     }
 
     const attemptSummary = generated.attempts
       .map((attempt) => `${attempt.model}: ${attempt.errors.join(" / ")}`)
       .join(" | ");
     console.warn(`AI editorial review failed for Naver post ${post.id}. ${attemptSummary}`);
-    if (sourceUnchanged && previous) return previous;
+    if (sourceUnchanged && previous) {
+      reviewRequiredCount += 1;
+      const merged = { ...previous, ...refreshedPost, excerpt: previous.excerpt, summary: previous.summary, highlights: previous.highlights };
+      return { ...merged, editorialStatus: "review-required", quality: "source-only" };
+    }
   }
 
   reviewRequiredCount += 1;
@@ -322,7 +305,7 @@ function summarizeContent(content, fallback) {
 
 function createPost(record, previous) {
   const title = decodeNaverValue(record.title);
-  const date = formatNaverDate(record.addDate);
+  const date = formatNaverDate(record.addDate, { previousIso: previous?.dateIso });
   const content = Array.isArray(previous?.content) ? previous.content : [];
   const images = Array.isArray(previous?.images) ? previous.images : [];
   const excerpt = previous?.excerpt || summarizeContent(content, title);
@@ -340,8 +323,8 @@ function createPost(record, previous) {
     content,
     area: extractArea(title),
     service: extractService(title, content),
-    product: extractProduct(title),
-    issues: extractIssues(title, excerpt),
+    product: extractProduct(title, content),
+    issues: extractIssues(title, excerpt, content),
   };
 }
 
@@ -424,8 +407,14 @@ function escapeXml(value) {
 
 function createSitemap(posts) {
   const staticEntries = staticRoutes.map((route) => `  <url>\n    <loc>${SITE_URL}${route.path}</loc>\n    <lastmod>${SITE_UPDATED_AT}</lastmod>\n    <changefreq>${route.frequency}</changefreq>\n    <priority>${route.priority}</priority>\n  </url>`);
+  const archivePageCount = Math.ceil(posts.length / WORKS_PAGE_SIZE);
+  const archiveLastModified = posts[0]?.processedAt || posts[0]?.dateIso || SYNC_DATE;
+  const archiveEntries = Array.from({ length: Math.max(0, archivePageCount - 1) }, (_, index) => {
+    const page = index + 2;
+    return `  <url>\n    <loc>${SITE_URL}/works/page/${page}</loc>\n    <lastmod>${archiveLastModified}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.6</priority>\n  </url>`;
+  });
   const workEntries = posts.filter((post) => post.quality === "indexable").map((post) => `  <url>\n    <loc>${SITE_URL}/works/${post.id}</loc>\n    <lastmod>${post.processedAt || post.dateIso}</lastmod>\n    <changefreq>yearly</changefreq>\n    <priority>0.7</priority>\n  </url>`);
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[...staticEntries, ...workEntries].join("\n")}\n</urlset>\n`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[...staticEntries, ...archiveEntries, ...workEntries].join("\n")}\n</urlset>\n`;
 }
 
 function createRss(posts) {
@@ -485,7 +474,7 @@ const enrichedPosts = await mapWithConcurrency(posts, DETAIL_CONCURRENCY, async 
   if (detail.content.length < 3 || detail.images.length < 1) throw new Error(`Naver post ${post.id} did not contain usable construction content`);
   downloadedDetails += 1;
   const excerpt = summarizeContent(detail.content, post.title);
-  return applyEditorialProcessing({ ...post, ...detail, excerpt, image: detail.images[0], issues: extractIssues(post.title, excerpt) }, previous);
+  return applyEditorialProcessing({ ...post, ...detail, excerpt, image: detail.images[0], issues: extractIssues(post.title, excerpt, detail.content) }, previous);
 });
 const displayTitleCounts = new Map();
 for (const post of enrichedPosts) displayTitleCounts.set(post.displayTitle, (displayTitleCounts.get(post.displayTitle) ?? 0) + 1);

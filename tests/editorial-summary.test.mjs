@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { generateEditorialSummary, validateEditorialSummary } from "../scripts/editorial-summary.mjs";
+import { generateEditorialSummary, needsEditorialRepair, validateEditorialSummary } from "../scripts/editorial-summary.mjs";
 
 const content = [
   "고객님께서 물탱크가 깨져 변기 교체를 요청하셨습니다.",
@@ -45,6 +45,21 @@ test("rejects internal problem, work and result labels from customer-facing copy
 
   assert.equal(result.valid, false);
   assert.ok(result.errors.some((error) => error.includes("광고성")));
+});
+
+test("rejects outcome guarantees and subjective result claims", () => {
+  const result = validateEditorialSummary({
+    ...validSummary,
+    highlights: [
+      validSummary.highlights[0],
+      validSummary.highlights[1],
+      { kind: "result", text: "설치 후 물내림이 강력하게 개선되어 만족도가 높아졌습니다.", sourceParagraphs: [3] },
+    ],
+  }, content);
+
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some((error) => error.includes("광고성")));
+  assert.equal(needsEditorialRepair({ summary: "설치 후 사용자 편의가 향상되었습니다.", highlights: [] }), true);
 });
 
 test("retries a rejected nano response once with the mini fallback", async () => {

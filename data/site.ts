@@ -33,8 +33,14 @@ export type CasePost = {
   issues: string[];
   sourceHash: string;
   processedAt: string;
-  editorialMode: "source-derived";
+  editorialMode: "source-derived" | "ai-grounded";
   editorialVersion: string;
+  editorialStatus: "approved" | "review-required";
+  summaryEvidence?: {
+    summary: number[];
+    highlights: number[][];
+  };
+  summaryModel?: string;
   quality: "indexable" | "source-only";
 };
 

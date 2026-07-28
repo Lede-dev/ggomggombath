@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { needsEditorialRepair } from "../scripts/editorial-summary.mjs";
 
 const outputRoot = new URL("../dist/client/", import.meta.url);
 const assetsConfigUrl = new URL("../wrangler.assets.jsonc", import.meta.url);
@@ -62,9 +63,14 @@ test("exports every substantial first-party construction page", async () => {
     assert.ok(post.highlights.length >= 2 && post.highlights.length <= 3);
     assert.match(post.sourceHash, /^[a-f0-9]{64}$/);
     assert.ok(["source-derived", "ai-grounded"].includes(post.editorialMode));
+    assert.ok(["approved", "review-required"].includes(post.editorialStatus));
+    if (post.quality === "indexable") {
+      assert.equal(post.editorialStatus, "approved");
+      assert.equal(needsEditorialRepair(post), false);
+    }
+    if (post.editorialStatus === "review-required") assert.equal(post.quality, "source-only");
     if (post.editorialMode === "ai-grounded") {
       assert.equal(post.editorialVersion, "ai-grounded-v1");
-      assert.equal(post.editorialStatus, "approved");
       assert.ok(["gpt-5-nano", "gpt-5-mini"].includes(post.summaryModel));
       assert.ok(post.summaryEvidence.summary.length >= 1);
       assert.equal(post.summaryEvidence.highlights.length, 3);
@@ -79,6 +85,7 @@ test("exports every substantial first-party construction page", async () => {
     assert.doesNotMatch(html, /SOURCE-BASED|자동으로 새로운 사실|홈페이지용으로 구조화/);
     assert.match(html, /class="source-highlights"/);
     assert.match(html, new RegExp(`blog\\.naver\\.com/refresh-bath/${post.id}`));
+    assert.match(html, new RegExp(`<meta name="robots" content="${post.quality === "indexable" ? "index, follow" : "noindex, follow"}"`));
     assert.doesNotMatch(html, /<img[^>]*alt=""/);
     assert.ok((html.match(/<p(?:\s|>)/g) ?? []).length < 30);
   }
@@ -104,12 +111,17 @@ test("exports discovery, RSS and app metadata as static files", async () => {
     readFile(blogPostsUrl, "utf8"),
   ]);
   const posts = JSON.parse(postsSource);
+  const archivePageCount = Math.ceil(posts.length / 10);
 
   assert.match(robots, /Sitemap: https:\/\/ggomggombath\.com\/sitemap\.xml/);
   assert.match(sitemap, /<loc>https:\/\/ggomggombath\.com\/<\/loc>/);
-  assert.equal((sitemap.match(/<loc>/g) ?? []).length, posts.filter((post) => post.quality === "indexable").length + 10);
+  assert.equal((sitemap.match(/<loc>/g) ?? []).length, posts.filter((post) => post.quality === "indexable").length + 10 + archivePageCount - 1);
   assert.match(sitemap, /https:\/\/ggomggombath\.com\/services\/toilet-replacement/);
-  assert.match(sitemap, /https:\/\/ggomggombath\.com\/works\/224346358464/);
+  assert.match(sitemap, /https:\/\/ggomggombath\.com\/works\/page\/2/);
+  for (const post of posts) {
+    const url = `https://ggomggombath.com/works/${post.id}`;
+    assert.equal(sitemap.includes(url), post.quality === "indexable");
+  }
   assert.match(rss, /<title>꼼꼼욕실 시공 사례<\/title>/);
   assert.equal(indexNowKey.trim(), "9a4f0c1b7d2e43f6a8c95b1e7042d639");
   assert.equal(JSON.parse(manifest).short_name, "꼼꼼욕실");
@@ -117,8 +129,9 @@ test("exports discovery, RSS and app metadata as static files", async () => {
 });
 
 test("paginates the complete work list ten items at a time", async () => {
-  const [html, postsSource] = await Promise.all([
+  const [html, secondPageHtml, postsSource] = await Promise.all([
     readFile(new URL("works.html", outputRoot), "utf8"),
+    readFile(new URL("works/page/2.html", outputRoot), "utf8"),
     readFile(blogPostsUrl, "utf8"),
   ]);
   const posts = JSON.parse(postsSource);
@@ -130,6 +143,11 @@ test("paginates the complete work list ten items at a time", async () => {
   assert.match(html, /aria-label="시공 사례 페이지"/);
   assert.match(html, /aria-label="이전 페이지"/);
   assert.match(html, /aria-label="다음 페이지"/);
+  assert.match(html, /href="\/works\/page\/2"[^>]*rel="next"/);
+  assert.match(secondPageHtml, /href="\/works"[^>]*rel="prev"/);
+  assert.match(secondPageHtml, /<link rel="canonical" href="https:\/\/ggomggombath\.com\/works\/page\/2"/);
+  assert.equal((secondPageHtml.match(/class="work-card"/g) ?? []).length, 10);
+  assert.match(secondPageHtml.replaceAll("<!-- -->", ""), new RegExp(`11–20 / ${posts.length}건`));
   assert.match(renderedText, new RegExp(`총 ${totalPages}페이지 중 1페이지`));
 });
 
