@@ -60,6 +60,7 @@ test("rejects outcome guarantees and subjective result claims", () => {
   assert.equal(result.valid, false);
   assert.ok(result.errors.some((error) => error.includes("광고성")));
   assert.equal(needsEditorialRepair({ summary: "설치 후 사용자 편의가 향상되었습니다.", highlights: [] }), true);
+  assert.equal(needsEditorialRepair({ summary: "최종 점검에서 누수 여부와 물내림", highlights: [] }), true);
 });
 
 test("retries a rejected nano response once with the mini fallback", async () => {

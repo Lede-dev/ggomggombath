@@ -114,7 +114,9 @@ function evidenceFor(paragraphNumbers, paragraphs) {
 }
 
 export function needsEditorialRepair(post) {
-  return [post?.summary, ...(post?.highlights ?? [])]
+  const summary = normalizeText(post?.summary);
+  if (summary && !/[.!?]$/.test(summary)) return true;
+  return [summary, ...(post?.highlights ?? [])]
     .map(normalizeText)
     .some((text) => forbiddenCopy.some((pattern) => pattern.test(text)));
 }
@@ -126,6 +128,7 @@ export function validateEditorialSummary(candidate, sourceParagraphs) {
 
   const summary = normalizeText(candidate.summary);
   if (summary.length < 45 || summary.length > 220) errors.push("요약 길이가 허용 범위를 벗어났습니다.");
+  if (summary && !/[.!?]$/.test(summary)) errors.push("요약 문장이 완결되지 않았습니다.");
   if (summary.includes("\n")) errors.push("요약에 줄바꿈이 포함됐습니다.");
   if (forbiddenCopy.some((pattern) => pattern.test(summary))) errors.push("요약에 광고성·자동 생성형 표현이 포함됐습니다.");
 
