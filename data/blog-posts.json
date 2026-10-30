@@ -128,7 +128,7 @@
   },
   {
     "id": "224452907922",
-    "title": "화성 동탄신도시 변기교체 비용과 과정｜동탄구 영천동 동탄역포레너스 대림바스CC-734 투피스변기교체",
+    "title": "화성 동탄 변기교체 비용과 과정｜동탄구 영천동 동탄역포레너스 대림바스CC-734 투피스변기교체",
     "link": "https://blog.naver.com/refresh-bath/224452907922",
     "date": "2026.10.25",
     "dateIso": "2026-10-25",
@@ -144,7 +144,7 @@
       "https://mblogthumb-phinf.pstatic.net/MjAyNjEwMjVfODAg/MDAxNzkyODkyOTg2NjU4.vKf9V77WoaOOYAW9-Q1NxHjMAMsmud5SMfWA00GYJekg.20laRgclZEhd9rK_xT2XuWeEGhmv1Ufqc2D8fuLmIckg.JPEG/20261021_135908.jpg?type=w800",
       "https://mblogthumb-phinf.pstatic.net/MjAyNjEwMjVfMTU3/MDAxNzkyODkzMDAyNDMy.BVJZfWsAjqvKb3s6Uz0_nXaxVhvzzSo8L4mKlzrY6RAg.j8rngVnPj6Y4jNNh6l5BJonE9tS9LbzDWalfxa2yveog.JPEG/20261021_140653.jpg?type=w800"
     ],
-    "excerpt": "화성 동탄구 영천동 동탄역포레너스에서 도기 파손·물내림 저하 문제로 진행한 양변기 교체 현장입니다. 대림바스 CC-734 설치 모습과 시공 전후 상태와 실제 작업 과정을 정리했습니다.",
+    "excerpt": "변기 물내림 불량과 크랙으로 불편을 겪던 현장을 점검한 결과, 로우탱크 원피스변기 교체를 통해 문제를 해결하고 설치 후 물내림 테스트와 누수 점검을 모두 완료했습니다. 설치 후에는 물탱크 조립과 수평 맞춤, 최종 점검까지 진행했고, 실리콘 마감으로 마무리했습니다.",
     "content": [
       "화성 에서 변기교체를 고민하고 계신가요?",
       "변기가 자주 막히거나, 물내림이 약해 답답했던 경험 있으신가요?",
@@ -237,20 +237,47 @@
     "siteLabel": "동탄구 영천동 동탄역포레너스",
     "displayTitle": "화성 동탄구 영천동 동탄역포레너스 | 양변기 교체 | 대림바스 CC-734",
     "seoTitle": "화성 동탄구 영천동 동탄역포레너스 | 양변기 교체 | 대림바스 CC-734",
-    "sourceHash": "8132cc9bcc3c934e04e7eecf9ff54e01939e43bc95c2d09bc03fa71db5420220",
+    "sourceHash": "3aca7ce5f4e3e0cd5803b8521ab0bc8c353b825576796185b47747f588a514be",
     "highlights": [
-      "실제로 문의를 주시는 고객님들의 상당수는 단순히 변기를 바꾸기 위해서가 아니라, 막힘, 냄새, 물내림 불량 같은 불편을 해결하기 위해 연락을 주십니다.",
-      "오늘 소개해드릴 현장은 화성시 동탄구 영천동 동탄역포레너스에서 진행한 대림바스 CC-734 투피스 변기 교체 후기입니다.",
-      "안방욕실 변기교체 전 이번 현장에서 고객님께서 가장 불편해하셨던 부분은 ❗물내림이 시원하지 않은 점 ❗변기 크랙확인 현장을 점검해보니 로우탱크 원피스변기 특성상 물내림이 약했으며 변기안쪽 크랙으로 인해 변기교체를 진행하였습니다."
+      "물내림 불량과 변기 크랙 문제를 해결해야 했습니다.",
+      "기존 변기를 철거하고 대림바스 CC-734 투피스 변기를 설치하며 물탱크 조립, 수평 작업, 누수 점검, 물내림 테스트를 수행했습니다.",
+      "최종 점검에서 누수 여부와 변기 흔들림, 급수 상태, 물내림 테스트를 확인했습니다."
     ],
-    "summary": "화성 동탄구 영천동 동탄역포레너스에서 도기 파손·물내림 저하 문제로 진행한 양변기 교체 현장입니다. 대림바스 CC-734 설치 모습과 시공 전후 상태와 실제 작업 과정을 정리했습니다.",
-    "processedAt": "2026-10-25",
-    "editorialMode": "source-derived",
+    "summary": "변기 물내림 불량과 크랙으로 불편을 겪던 현장을 점검한 결과, 로우탱크 원피스변기 교체를 통해 문제를 해결하고 설치 후 물내림 테스트와 누수 점검을 모두 완료했습니다. 설치 후에는 물탱크 조립과 수평 맞춤, 최종 점검까지 진행했고, 실리콘 마감으로 마무리했습니다.",
+    "summaryEvidence": {
+      "summary": [
+        1,
+        4,
+        25,
+        38,
+        51
+      ],
+      "highlights": [
+        [
+          4,
+          12,
+          15
+        ],
+        [
+          28,
+          29,
+          45,
+          50
+        ],
+        [
+          52,
+          53,
+          54,
+          55
+        ]
+      ]
+    },
+    "summaryModel": "gpt-5-nano",
+    "processedAt": "2026-10-30",
+    "editorialMode": "ai-grounded",
     "editorialVersion": "ai-grounded-v1",
-    "editorialStatus": "review-required",
-    "editorialAttemptVersion": "ai-grounded-v1",
-    "editorialAttemptedAt": "2026-10-25",
-    "quality": "source-only"
+    "editorialStatus": "approved",
+    "quality": "indexable"
   },
   {
     "id": "224445303093",
